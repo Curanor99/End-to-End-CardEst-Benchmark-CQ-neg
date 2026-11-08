@@ -1,0 +1,581 @@
+id,source_line,negated_count,positive_aliases,negated_aliases
+1.0,1,0,b u,
+1.1,1,1,u,b
+2.0,2,0,c b,
+2.1,2,1,b,c
+3.0,3,0,c ph,
+3.1,3,1,ph,c
+4.0,4,0,c ph,
+4.1,4,1,ph,c
+5.0,5,0,c v,
+5.1,5,1,v,c
+6.0,6,0,b p,
+6.1,6,1,p,b
+7.0,7,0,c p pl,
+7.1,7,1,p pl,c
+7.2,7,2,p,c pl
+8.0,8,0,c p pl,
+8.1,8,1,p pl,c
+8.2,8,2,p,c pl
+9.0,9,0,c p ph,
+9.1,9,1,p ph,c
+9.2,9,2,p,c ph
+10.0,10,0,c p u,
+10.1,10,1,p u,c
+10.2,10,2,u,c p
+11.0,11,0,c p u,
+11.1,11,1,p u,c
+11.2,11,2,u,c p
+12.0,12,0,c ph u,
+12.1,12,1,c u,ph
+12.2,12,2,c,ph u
+13.0,13,0,c v u,
+13.1,13,1,v u,c
+13.2,13,2,u,c v
+14.0,14,0,c v u,
+14.1,14,1,v u,c
+14.2,14,2,u,c v
+15.0,15,0,c b u,
+15.1,15,1,c u,b
+15.2,15,2,c,b u
+16.0,16,0,c b u,
+16.1,16,1,c u,b
+16.2,16,2,c,b u
+17.0,17,0,p t v,
+17.1,17,1,p v,t
+17.2,17,2,p,t v
+18.0,18,0,p pl ph,
+18.1,18,1,pl ph,p
+18.2,18,2,pl,p ph
+19.0,19,0,p pl u,
+19.1,19,1,p u,pl
+19.2,19,2,p,pl u
+20.0,20,0,ph p u,
+20.1,20,1,p u,ph
+20.2,20,2,p,ph u
+21.0,21,0,v p u,
+21.1,21,1,v u,p
+21.2,21,2,v,p u
+22.0,22,0,v p u,
+22.1,22,1,p u,v
+22.2,22,2,p,v u
+23.0,23,0,v b u,
+23.1,23,1,v u,b
+23.2,23,2,v,b u
+24.0,24,0,v b u,
+24.1,24,1,v u,b
+24.2,24,2,v,b u
+25.0,25,0,c p pl v,
+25.1,25,1,p pl v,c
+25.2,25,2,p pl,c v
+26.0,26,0,c p pl u,
+26.1,26,1,p pl u,c
+26.2,26,2,p u,c pl
+26.3,26,3,p,c pl u
+27.0,27,0,c p v u,
+27.1,27,1,p v u,c
+27.2,27,2,v u,c p
+27.3,27,3,u,c p v
+28.0,28,0,v p b u,
+28.1,28,1,p b u,v
+28.2,28,2,p u,v b
+29.0,29,0,v p b u,
+29.1,29,1,p b u,v
+29.2,29,2,p u,v b
+30.0,30,0,v p b u,
+30.1,30,1,p b u,v
+30.2,30,2,b u,v p
+30.3,30,3,u,v p b
+31.0,31,0,v p b u,
+31.1,31,1,p b u,v
+31.2,31,2,b u,v p
+31.3,31,3,u,v p b
+32.0,32,0,c ph v u,
+32.1,32,1,ph v u,c
+32.2,32,2,ph u,c v
+33.0,33,0,c ph v u,
+33.1,33,1,ph v u,c
+33.2,33,2,ph u,c v
+34.0,34,0,c v b u,
+34.1,34,1,v b u,c
+34.2,34,2,b u,c v
+34.3,34,3,u,c v b
+35.0,35,0,c v b u,
+35.1,35,1,v b u,c
+35.2,35,2,b u,c v
+35.3,35,3,u,c v b
+36.0,36,0,c v b u,
+36.1,36,1,v b u,c
+36.2,36,2,b u,c v
+36.3,36,3,u,c v b
+37.0,37,0,c pl ph v,
+37.1,37,1,pl ph v,c
+37.2,37,2,pl ph,c v
+38.0,38,0,c ph b u,
+38.1,38,1,ph b u,c
+38.2,38,2,b u,c ph
+38.3,38,3,u,c ph b
+39.0,39,0,c ph b u,
+39.1,39,1,ph b u,c
+39.2,39,2,b u,c ph
+39.3,39,3,u,c ph b
+40.0,40,0,pl p u b,
+40.1,40,1,p u b,pl
+40.2,40,2,p b,pl u
+41.0,41,0,pl p u b,
+41.1,41,1,p u b,pl
+41.2,41,2,p b,pl u
+42.0,42,0,ph p v u,
+42.1,42,1,p v u,ph
+42.2,42,2,p u,ph v
+42.3,42,3,p,ph v u
+43.0,43,0,ph p u b,
+43.1,43,1,p u b,ph
+43.2,43,2,p b,ph u
+44.0,44,0,ph p u b,
+44.1,44,1,p u b,ph
+44.2,44,2,p b,ph u
+45.0,45,0,ph v u b,
+45.1,45,1,v u b,ph
+45.2,45,2,u b,ph v
+45.3,45,3,u,ph v b
+46.0,46,0,c p pl ph v,
+46.1,46,1,p pl ph v,c
+46.2,46,2,p ph v,c pl
+46.3,46,3,p v,c pl ph
+46.4,46,4,p,c pl ph v
+47.0,47,0,c p ph v u,
+47.1,47,1,c ph v u,p
+47.2,47,2,c ph u,p v
+47.3,47,3,c ph,p v u
+48.0,48,0,c ph b v u,
+48.1,48,1,ph b v u,c
+48.2,48,2,b v u,c ph
+48.3,48,3,b v,c ph u
+49.0,49,0,c p v b u,
+49.1,49,1,c v b u,p
+49.2,49,2,c v u,p b
+49.3,49,3,c v,p b u
+50.0,50,0,c p v b u,
+50.1,50,1,c v b u,p
+50.2,50,2,c v u,p b
+50.3,50,3,c v,p b u
+51.0,51,0,c p ph b u,
+51.1,51,1,p ph b u,c
+51.2,51,2,ph b u,c p
+51.3,51,3,b u,c p ph
+51.4,51,4,u,c p ph b
+52.0,52,0,c p ph b u,
+52.1,52,1,p ph b u,c
+52.2,52,2,ph b u,c p
+52.3,52,3,b u,c p ph
+52.4,52,4,u,c p ph b
+53.0,53,0,c pl p u b,
+53.1,53,1,pl p u b,c
+53.2,53,2,p u b,c pl
+53.3,53,3,p b,c pl u
+54.0,54,0,c pl p u b,
+54.1,54,1,pl p u b,c
+54.2,54,2,p u b,c pl
+54.3,54,3,p b,c pl u
+55.0,55,0,t p u ph b,
+55.1,55,1,p u ph b,t
+55.2,55,2,p u b,t ph
+55.3,55,3,p u,t ph b
+56.0,56,0,t p u v b,
+56.1,56,1,p u v b,t
+56.2,56,2,p u b,t v
+56.3,56,3,p u,t v b
+57.0,57,0,t p u v b,
+57.1,57,1,p u v b,t
+57.2,57,2,p u b,t v
+57.3,57,3,p u,t v b
+58.0,58,0,p pl ph v b u,
+58.1,58,1,pl ph v b u,p
+58.2,58,2,pl v b u,p ph
+58.3,58,3,pl b u,p ph v
+58.4,58,4,pl u,p ph v b
+59.0,59,0,p pl ph v b u,
+59.1,59,1,pl ph v b u,p
+59.2,59,2,pl v b u,p ph
+59.3,59,3,pl b u,p ph v
+59.4,59,4,pl u,p ph v b
+60.0,60,0,c p pl v b u,
+60.1,60,1,p pl v b u,c
+60.2,60,2,p v b u,c pl
+60.3,60,3,p b u,c pl v
+60.4,60,4,p u,c pl v b
+61.0,61,0,c p pl v b u,
+61.1,61,1,p pl v b u,c
+61.2,61,2,p v b u,c pl
+61.3,61,3,p b u,c pl v
+61.4,61,4,p u,c pl v b
+62.0,62,0,c p pl v b u,
+62.1,62,1,p pl v b u,c
+62.2,62,2,p v b u,c pl
+62.3,62,3,p b u,c pl v
+62.4,62,4,p u,c pl v b
+63.0,63,0,c p pl v b u,
+63.1,63,1,p pl v b u,c
+63.2,63,2,p v b u,c pl
+63.3,63,3,p b u,c pl v
+63.4,63,4,p u,c pl v b
+64.0,64,0,c p pl ph v u,
+64.1,64,1,p pl ph v u,c
+64.2,64,2,p ph v u,c pl
+64.3,64,3,p v u,c pl ph
+64.4,64,4,p u,c pl ph v
+65.0,65,0,c p pl ph v u,
+65.1,65,1,p pl ph v u,c
+65.2,65,2,p ph v u,c pl
+65.3,65,3,p v u,c pl ph
+65.4,65,4,p u,c pl ph v
+66.0,66,0,c p pl ph v u,
+66.1,66,1,p pl ph v u,c
+66.2,66,2,p ph v u,c pl
+66.3,66,3,p v u,c pl ph
+66.4,66,4,p u,c pl ph v
+67.0,67,0,c p pl ph v u,
+67.1,67,1,p pl ph v u,c
+67.2,67,2,p ph v u,c pl
+67.3,67,3,p v u,c pl ph
+67.4,67,4,p u,c pl ph v
+68.0,68,0,c p pl ph v b,
+68.1,68,1,p pl ph v b,c
+68.2,68,2,p ph v b,c pl
+68.3,68,3,p v b,c pl ph
+68.4,68,4,p b,c pl ph v
+69.0,69,0,c p pl ph v b,
+69.1,69,1,p pl ph v b,c
+69.2,69,2,p ph v b,c pl
+69.3,69,3,p v b,c pl ph
+69.4,69,4,p b,c pl ph v
+70.0,70,0,c p pl ph v b,
+70.1,70,1,p pl ph v b,c
+70.2,70,2,p ph v b,c pl
+70.3,70,3,p v b,c pl ph
+70.4,70,4,p b,c pl ph v
+71.0,71,0,c p pl ph v b,
+71.1,71,1,p pl ph v b,c
+71.2,71,2,p ph v b,c pl
+71.3,71,3,p v b,c pl ph
+71.4,71,4,p b,c pl ph v
+72.0,72,0,c p pl ph v b,
+72.1,72,1,p pl ph v b,c
+72.2,72,2,p ph v b,c pl
+72.3,72,3,p v b,c pl ph
+72.4,72,4,p b,c pl ph v
+73.0,73,0,c p pl ph v b,
+73.1,73,1,p pl ph v b,c
+73.2,73,2,p ph v b,c pl
+73.3,73,3,p v b,c pl ph
+73.4,73,4,p b,c pl ph v
+74.0,74,0,c p ph v b u,
+74.1,74,1,p ph v b u,c
+74.2,74,2,p v b u,c ph
+74.3,74,3,p b u,c ph v
+74.4,74,4,p u,c ph v b
+75.0,75,0,c p ph v b u,
+75.1,75,1,p ph v b u,c
+75.2,75,2,p v b u,c ph
+75.3,75,3,p b u,c ph v
+75.4,75,4,p u,c ph v b
+76.0,76,0,c p ph v b u,
+76.1,76,1,p ph v b u,c
+76.2,76,2,p v b u,c ph
+76.3,76,3,p b u,c ph v
+76.4,76,4,p u,c ph v b
+77.0,77,0,c p ph v b u,
+77.1,77,1,p ph v b u,c
+77.2,77,2,p v b u,c ph
+77.3,77,3,p b u,c ph v
+77.4,77,4,p u,c ph v b
+78.0,78,0,c p ph v b u,
+78.1,78,1,p ph v b u,c
+78.2,78,2,p v b u,c ph
+78.3,78,3,p b u,c ph v
+78.4,78,4,p u,c ph v b
+79.0,79,0,c p ph v b u,
+79.1,79,1,p ph v b u,c
+79.2,79,2,p v b u,c ph
+79.3,79,3,p b u,c ph v
+79.4,79,4,p u,c ph v b
+80.0,80,0,c p u,
+80.1,80,1,p u,c
+80.2,80,2,u,c p
+81.0,81,0,c p u,
+81.1,81,1,p u,c
+81.2,81,2,u,c p
+82.0,82,0,c ph u,
+82.1,82,1,ph u,c
+82.2,82,2,u,c ph
+83.0,83,0,c ph u,
+83.1,83,1,ph u,c
+83.2,83,2,u,c ph
+84.0,84,0,c v u,
+84.1,84,1,v u,c
+84.2,84,2,u,c v
+85.0,85,0,c v u,
+85.1,85,1,v u,c
+85.2,85,2,u,c v
+86.0,86,0,c v u p,
+86.1,86,1,v u p,c
+86.2,86,2,u p,c v
+87.0,87,0,c b u,
+87.1,87,1,b u,c
+87.2,87,2,u,c b
+88.0,88,0,c b u,
+88.1,88,1,b u,c
+88.2,88,2,u,c b
+89.0,89,0,ph p u,
+89.1,89,1,p u,ph
+89.2,89,2,u,ph p
+90.0,90,0,ph p u,
+90.1,90,1,p u,ph
+90.2,90,2,u,ph p
+91.0,91,0,ph p u,
+91.1,91,1,p u,ph
+91.2,91,2,u,ph p
+92.0,92,0,ph p u,
+92.1,92,1,p u,ph
+92.2,92,2,p,ph u
+93.0,93,0,v p u,
+93.1,93,1,p u,v
+93.2,93,2,u,v p
+94.0,94,0,v p u,
+94.1,94,1,p u,v
+94.2,94,2,u,v p
+95.0,95,0,c ph v p,
+95.1,95,1,ph v p,c
+95.2,95,2,v p,c ph
+95.3,95,3,p,c ph v
+96.0,96,0,c ph v p,
+96.1,96,1,ph v p,c
+96.2,96,2,v p,c ph
+96.3,96,3,p,c ph v
+97.0,97,0,c p v u,
+97.1,97,1,p v u,c
+97.2,97,2,v u,c p
+97.3,97,3,u,c p v
+98.0,98,0,c p v u,
+98.1,98,1,p v u,c
+98.2,98,2,v u,c p
+98.3,98,3,u,c p v
+99.0,99,0,c p v u,
+99.1,99,1,p v u,c
+99.2,99,2,v u,c p
+99.3,99,3,u,c p v
+100.0,100,0,c p v u,
+100.1,100,1,p v u,c
+100.2,100,2,p u,c v
+100.3,100,3,p,c v u
+101.0,101,0,c p v u,
+101.1,101,1,p v u,c
+101.2,101,2,p u,c v
+101.3,101,3,p,c v u
+102.0,102,0,v p b u,
+102.1,102,1,p b u,v
+102.2,102,2,p u,v b
+103.0,103,0,v p b u,
+103.1,103,1,p b u,v
+103.2,103,2,b u,v p
+103.3,103,3,u,v p b
+104.0,104,0,c ph v u,
+104.1,104,1,ph v u,c
+104.2,104,2,v u,c ph
+104.3,104,3,u,c ph v
+105.0,105,0,c ph v u,
+105.1,105,1,ph v u,c
+105.2,105,2,v u,c ph
+105.3,105,3,u,c ph v
+106.0,106,0,c ph v u,
+106.1,106,1,ph v u,c
+106.2,106,2,v u,c ph
+106.3,106,3,u,c ph v
+107.0,107,0,c v b u,
+107.1,107,1,v b u,c
+107.2,107,2,b u,c v
+107.3,107,3,u,c v b
+108.0,108,0,c v b u,
+108.1,108,1,v b u,c
+108.2,108,2,b u,c v
+108.3,108,3,u,c v b
+109.0,109,0,c pl ph v p,
+109.1,109,1,pl ph v p,c
+109.2,109,2,ph v p,c pl
+109.3,109,3,v p,c pl ph
+109.4,109,4,p,c pl ph v
+110.0,110,0,c pl ph v p,
+110.1,110,1,pl ph v p,c
+110.2,110,2,ph v p,c pl
+110.3,110,3,v p,c pl ph
+110.4,110,4,p,c pl ph v
+111.0,111,0,c pl ph v p,
+111.1,111,1,pl ph v p,c
+111.2,111,2,ph v p,c pl
+111.3,111,3,v p,c pl ph
+111.4,111,4,p,c pl ph v
+112.0,112,0,c pl ph v p,
+112.1,112,1,pl ph v p,c
+112.2,112,2,ph v p,c pl
+112.3,112,3,v p,c pl ph
+112.4,112,4,p,c pl ph v
+113.0,113,0,c ph b u,
+113.1,113,1,ph b u,c
+113.2,113,2,b u,c ph
+113.3,113,3,u,c ph b
+114.0,114,0,c ph b u,
+114.1,114,1,ph b u,c
+114.2,114,2,b u,c ph
+114.3,114,3,u,c ph b
+115.0,115,0,c ph b u,
+115.1,115,1,ph b u,c
+115.2,115,2,b u,c ph
+115.3,115,3,u,c ph b
+116.0,116,0,c ph b u,
+116.1,116,1,ph b u,c
+116.2,116,2,b u,c ph
+116.3,116,3,u,c ph b
+117.0,117,0,ph p v u,
+117.1,117,1,p v u,ph
+117.2,117,2,p u,ph v
+117.3,117,3,p,ph v u
+118.0,118,0,ph p v u,
+118.1,118,1,p v u,ph
+118.2,118,2,p u,ph v
+118.3,118,3,p,ph v u
+119.0,119,0,ph p u b,
+119.1,119,1,p u b,ph
+119.2,119,2,u b,ph p
+119.3,119,3,u,ph p b
+120.0,120,0,ph p u b,
+120.1,120,1,p u b,ph
+120.2,120,2,u b,ph p
+120.3,120,3,u,ph p b
+121.0,121,0,ph p u b,
+121.1,121,1,p u b,ph
+121.2,121,2,u b,ph p
+121.3,121,3,u,ph p b
+122.0,122,0,ph p u b,
+122.1,122,1,p u b,ph
+122.2,122,2,u b,ph p
+122.3,122,3,u,ph p b
+123.0,123,0,ph p u b,
+123.1,123,1,p u b,ph
+123.2,123,2,u b,ph p
+123.3,123,3,u,ph p b
+124.0,124,0,ph v u b,
+124.1,124,1,v u b,ph
+124.2,124,2,u b,ph v
+124.3,124,3,u,ph v b
+125.0,125,0,ph v u b,
+125.1,125,1,v u b,ph
+125.2,125,2,u b,ph v
+125.3,125,3,u,ph v b
+126.0,126,0,ph v u b,
+126.1,126,1,v u b,ph
+126.2,126,2,u b,ph v
+126.3,126,3,u,ph v b
+127.0,127,0,c p pl ph v,
+127.1,127,1,p pl ph v,c
+127.2,127,2,p ph v,c pl
+127.3,127,3,p v,c pl ph
+127.4,127,4,p,c pl ph v
+128.0,128,0,c p pl ph v,
+128.1,128,1,p pl ph v,c
+128.2,128,2,p ph v,c pl
+128.3,128,3,p v,c pl ph
+128.4,128,4,p,c pl ph v
+129.0,129,0,c p pl ph v,
+129.1,129,1,p pl ph v,c
+129.2,129,2,p ph v,c pl
+129.3,129,3,p v,c pl ph
+129.4,129,4,p,c pl ph v
+130.0,130,0,c p pl ph u,
+130.1,130,1,p pl ph u,c
+130.2,130,2,p ph u,c pl
+130.3,130,3,p u,c pl ph
+131.0,131,0,c p ph v u,
+131.1,131,1,p ph v u,c
+131.2,131,2,ph v u,c p
+131.3,131,3,v u,c p ph
+131.4,131,4,u,c p ph v
+132.0,132,0,c p ph v u,
+132.1,132,1,p ph v u,c
+132.2,132,2,ph v u,c p
+132.3,132,3,v u,c p ph
+132.4,132,4,u,c p ph v
+133.0,133,0,c ph b v u,
+133.1,133,1,ph b v u,c
+133.2,133,2,b v u,c ph
+133.3,133,3,v u,c ph b
+133.4,133,4,u,c ph b v
+134.0,134,0,c p ph b u,
+134.1,134,1,p ph b u,c
+134.2,134,2,ph b u,c p
+134.3,134,3,b u,c p ph
+134.4,134,4,u,c p ph b
+135.0,135,0,c p ph b u,
+135.1,135,1,p ph b u,c
+135.2,135,2,ph b u,c p
+135.3,135,3,b u,c p ph
+135.4,135,4,u,c p ph b
+136.0,136,0,c p ph b u,
+136.1,136,1,p ph b u,c
+136.2,136,2,ph b u,c p
+136.3,136,3,b u,c p ph
+136.4,136,4,u,c p ph b
+137.0,137,0,c pl p u b,
+137.1,137,1,pl p u b,c
+137.2,137,2,p u b,c pl
+137.3,137,3,p b,c pl u
+138.0,138,0,t p u v b,
+138.1,138,1,p u v b,t
+138.2,138,2,p u b,t v
+138.3,138,3,p u,t v b
+139.0,139,0,c p pl v b u,
+139.1,139,1,p pl v b u,c
+139.2,139,2,p v b u,c pl
+139.3,139,3,p b u,c pl v
+139.4,139,4,p u,c pl v b
+140.0,140,0,c p pl ph v b u,
+140.1,140,1,p pl ph v b u,c
+140.2,140,2,p ph v b u,c pl
+140.3,140,3,p v b u,c pl ph
+140.4,140,4,p b u,c pl ph v
+140.5,140,5,p u,c pl ph v b
+141.0,141,0,c p pl ph v b u,
+141.1,141,1,p pl ph v b u,c
+141.2,141,2,p ph v b u,c pl
+141.3,141,3,p v b u,c pl ph
+141.4,141,4,p b u,c pl ph v
+141.5,141,5,p u,c pl ph v b
+142.0,142,0,c p pl ph v b u,
+142.1,142,1,p pl ph v b u,c
+142.2,142,2,p ph v b u,c pl
+142.3,142,3,p v b u,c pl ph
+142.4,142,4,p b u,c pl ph v
+142.5,142,5,p u,c pl ph v b
+143.0,143,0,c p pl ph v b u,
+143.1,143,1,p pl ph v b u,c
+143.2,143,2,p ph v b u,c pl
+143.3,143,3,p v b u,c pl ph
+143.4,143,4,p b u,c pl ph v
+143.5,143,5,p u,c pl ph v b
+144.0,144,0,c p ph v b u,
+144.1,144,1,p ph v b u,c
+144.2,144,2,p v b u,c ph
+144.3,144,3,p b u,c ph v
+144.4,144,4,p u,c ph v b
+145.0,145,0,c p pl ph v u,
+145.1,145,1,p pl ph v u,c
+145.2,145,2,p ph v u,c pl
+145.3,145,3,p v u,c pl ph
+145.4,145,4,p u,c pl ph v
+145.5,145,5,p,c pl ph v u
+146.0,146,0,c p pl ph v u,
+146.1,146,1,p pl ph v u,c
+146.2,146,2,p ph v u,c pl
+146.3,146,3,p v u,c pl ph
+146.4,146,4,p u,c pl ph v
+146.5,146,5,p,c pl ph v u

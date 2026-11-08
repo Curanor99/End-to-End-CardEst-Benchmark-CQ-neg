@@ -1,0 +1,201 @@
+id,source_line,negated_count,positive_relations,added_templates,added_aliases
+6.0,6,0,badges:b posts:p,,
+6.1,6,1,badges:b posts:p,scored_comments,n_c
+6.2,6,2,badges:b posts:p,scored_comments upvotes,n_c n_v
+6.3,6,3,badges:b posts:p,scored_comments upvotes body_edits,n_c n_v n_ph
+6.4,6,4,badges:b posts:p,scored_comments upvotes body_edits linked_posts,n_c n_v n_ph n_pl
+7.0,7,0,comments:c posts:p postLinks:pl,,
+7.1,7,1,comments:c posts:p postLinks:pl,owner_badges,n_b
+7.2,7,2,comments:c posts:p postLinks:pl,owner_badges high_reputation_owner,n_b n_u
+7.3,7,3,comments:c posts:p postLinks:pl,owner_badges high_reputation_owner owner_upvotes,n_b n_u n_vu
+7.4,7,4,comments:c posts:p postLinks:pl,owner_badges high_reputation_owner owner_upvotes owner_body_edits,n_b n_u n_vu n_phu
+8.0,8,0,comments:c posts:p postLinks:pl,,
+8.1,8,1,comments:c posts:p postLinks:pl,upvotes,n_v
+8.2,8,2,comments:c posts:p postLinks:pl,upvotes body_edits,n_v n_ph
+8.3,8,3,comments:c posts:p postLinks:pl,upvotes body_edits owner_badges,n_v n_ph n_b
+8.4,8,4,comments:c posts:p postLinks:pl,upvotes body_edits owner_badges high_reputation_owner,n_v n_ph n_b n_u
+9.0,9,0,comments:c posts:p postHistory:ph,,
+9.1,9,1,comments:c posts:p postHistory:ph,incoming_links,n_pli
+9.2,9,2,comments:c posts:p postHistory:ph,incoming_links owner_upvotes,n_pli n_vu
+9.3,9,3,comments:c posts:p postHistory:ph,incoming_links owner_upvotes high_reputation_owner,n_pli n_vu n_u
+9.4,9,4,comments:c posts:p postHistory:ph,incoming_links owner_upvotes high_reputation_owner owner_badges,n_pli n_vu n_u n_b
+10.0,10,0,comments:c posts:p users:u,,
+10.1,10,1,comments:c posts:p users:u,linked_posts,n_pl
+10.2,10,2,comments:c posts:p users:u,linked_posts owner_body_edits,n_pl n_phu
+10.3,10,3,comments:c posts:p users:u,linked_posts owner_body_edits upvotes,n_pl n_phu n_v
+10.4,10,4,comments:c posts:p users:u,linked_posts owner_body_edits upvotes owner_badges,n_pl n_phu n_v n_b
+11.0,11,0,comments:c posts:p users:u,,
+11.1,11,1,comments:c posts:p users:u,body_edits,n_ph
+11.2,11,2,comments:c posts:p users:u,body_edits incoming_links,n_ph n_pli
+11.3,11,3,comments:c posts:p users:u,body_edits incoming_links owner_upvotes,n_ph n_pli n_vu
+11.4,11,4,comments:c posts:p users:u,body_edits incoming_links owner_upvotes owner_badges,n_ph n_pli n_vu n_b
+17.0,17,0,posts:p tags:t votes:v,,
+17.1,17,1,posts:p tags:t votes:v,owner_scored_comments,n_cu
+17.2,17,2,posts:p tags:t votes:v,owner_scored_comments linked_posts,n_cu n_pl
+17.3,17,3,posts:p tags:t votes:v,owner_scored_comments linked_posts owner_body_edits,n_cu n_pl n_phu
+17.4,17,4,posts:p tags:t votes:v,owner_scored_comments linked_posts owner_body_edits high_reputation_owner,n_cu n_pl n_phu n_u
+18.0,18,0,posts:p postLinks:pl postHistory:ph,,
+18.1,18,1,posts:p postLinks:pl postHistory:ph,owner_upvotes,n_vu
+18.2,18,2,posts:p postLinks:pl postHistory:ph,owner_upvotes scored_comments,n_vu n_c
+18.3,18,3,posts:p postLinks:pl postHistory:ph,owner_upvotes scored_comments high_reputation_owner,n_vu n_c n_u
+18.4,18,4,posts:p postLinks:pl postHistory:ph,owner_upvotes scored_comments high_reputation_owner owner_badges,n_vu n_c n_u n_b
+19.0,19,0,posts:p postLinks:pl users:u,,
+19.1,19,1,posts:p postLinks:pl users:u,owner_body_edits,n_phu
+19.2,19,2,posts:p postLinks:pl users:u,owner_body_edits owner_scored_comments,n_phu n_cu
+19.3,19,3,posts:p postLinks:pl users:u,owner_body_edits owner_scored_comments upvotes,n_phu n_cu n_v
+19.4,19,4,posts:p postLinks:pl users:u,owner_body_edits owner_scored_comments upvotes owner_badges,n_phu n_cu n_v n_b
+20.0,20,0,postHistory:ph posts:p users:u,,
+20.1,20,1,postHistory:ph posts:p users:u,scored_comments,n_c
+20.2,20,2,postHistory:ph posts:p users:u,scored_comments owner_badges,n_c n_b
+20.3,20,3,postHistory:ph posts:p users:u,scored_comments owner_badges incoming_links,n_c n_b n_pli
+20.4,20,4,postHistory:ph posts:p users:u,scored_comments owner_badges incoming_links upvotes,n_c n_b n_pli n_v
+21.0,21,0,votes:v posts:p users:u,,
+21.1,21,1,votes:v posts:p users:u,owner_scored_comments,n_cu
+21.2,21,2,votes:v posts:p users:u,owner_scored_comments body_edits,n_cu n_ph
+21.3,21,3,votes:v posts:p users:u,owner_scored_comments body_edits linked_posts,n_cu n_ph n_pl
+21.4,21,4,votes:v posts:p users:u,owner_scored_comments body_edits linked_posts owner_badges,n_cu n_ph n_pl n_b
+22.0,22,0,votes:v posts:p users:u,,
+22.1,22,1,votes:v posts:p users:u,incoming_links,n_pli
+22.2,22,2,votes:v posts:p users:u,incoming_links scored_comments,n_pli n_c
+22.3,22,3,votes:v posts:p users:u,incoming_links scored_comments body_edits,n_pli n_c n_ph
+22.4,22,4,votes:v posts:p users:u,incoming_links scored_comments body_edits owner_badges,n_pli n_c n_ph n_b
+25.0,25,0,comments:c posts:p postLinks:pl votes:v,,
+25.1,25,1,comments:c posts:p postLinks:pl votes:v,high_reputation_owner,n_u
+25.2,25,2,comments:c posts:p postLinks:pl votes:v,high_reputation_owner owner_body_edits,n_u n_phu
+25.3,25,3,comments:c posts:p postLinks:pl votes:v,high_reputation_owner owner_body_edits owner_badges,n_u n_phu n_b
+25.4,25,4,comments:c posts:p postLinks:pl votes:v,high_reputation_owner owner_body_edits owner_badges body_edits,n_u n_phu n_b n_ph
+26.0,26,0,comments:c posts:p postLinks:pl users:u,,
+26.1,26,1,comments:c posts:p postLinks:pl users:u,owner_upvotes,n_vu
+26.2,26,2,comments:c posts:p postLinks:pl users:u,owner_upvotes owner_badges,n_vu n_b
+26.3,26,3,comments:c posts:p postLinks:pl users:u,owner_upvotes owner_badges owner_body_edits,n_vu n_b n_phu
+26.4,26,4,comments:c posts:p postLinks:pl users:u,owner_upvotes owner_badges owner_body_edits upvotes,n_vu n_b n_phu n_v
+27.0,27,0,comments:c posts:p votes:v users:u,,
+27.1,27,1,comments:c posts:p votes:v users:u,linked_posts,n_pl
+27.2,27,2,comments:c posts:p votes:v users:u,linked_posts body_edits,n_pl n_ph
+27.3,27,3,comments:c posts:p votes:v users:u,linked_posts body_edits owner_badges,n_pl n_ph n_b
+27.4,27,4,comments:c posts:p votes:v users:u,linked_posts body_edits owner_badges incoming_links,n_pl n_ph n_b n_pli
+28.0,28,0,votes:v posts:p badges:b users:u,,
+28.1,28,1,votes:v posts:p badges:b users:u,owner_body_edits,n_phu
+28.2,28,2,votes:v posts:p badges:b users:u,owner_body_edits owner_scored_comments,n_phu n_cu
+28.3,28,3,votes:v posts:p badges:b users:u,owner_body_edits owner_scored_comments linked_posts,n_phu n_cu n_pl
+28.4,28,4,votes:v posts:p badges:b users:u,owner_body_edits owner_scored_comments linked_posts scored_comments,n_phu n_cu n_pl n_c
+29.0,29,0,votes:v posts:p badges:b users:u,,
+29.1,29,1,votes:v posts:p badges:b users:u,body_edits,n_ph
+29.2,29,2,votes:v posts:p badges:b users:u,body_edits incoming_links,n_ph n_pli
+29.3,29,3,votes:v posts:p badges:b users:u,body_edits incoming_links owner_scored_comments,n_ph n_pli n_cu
+29.4,29,4,votes:v posts:p badges:b users:u,body_edits incoming_links owner_scored_comments scored_comments,n_ph n_pli n_cu n_c
+30.0,30,0,votes:v posts:p badges:b users:u,,
+30.1,30,1,votes:v posts:p badges:b users:u,owner_scored_comments,n_cu
+30.2,30,2,votes:v posts:p badges:b users:u,owner_scored_comments linked_posts,n_cu n_pl
+30.3,30,3,votes:v posts:p badges:b users:u,owner_scored_comments linked_posts owner_body_edits,n_cu n_pl n_phu
+30.4,30,4,votes:v posts:p badges:b users:u,owner_scored_comments linked_posts owner_body_edits incoming_links,n_cu n_pl n_phu n_pli
+31.0,31,0,votes:v posts:p badges:b users:u,,
+31.1,31,1,votes:v posts:p badges:b users:u,scored_comments,n_c
+31.2,31,2,votes:v posts:p badges:b users:u,scored_comments linked_posts,n_c n_pl
+31.3,31,3,votes:v posts:p badges:b users:u,scored_comments linked_posts body_edits,n_c n_pl n_ph
+31.4,31,4,votes:v posts:p badges:b users:u,scored_comments linked_posts body_edits owner_scored_comments,n_c n_pl n_ph n_cu
+40.0,40,0,postLinks:pl posts:p users:u badges:b,,
+40.1,40,1,postLinks:pl posts:p users:u badges:b,upvotes,n_v
+40.2,40,2,postLinks:pl posts:p users:u badges:b,upvotes scored_comments,n_v n_c
+40.3,40,3,postLinks:pl posts:p users:u badges:b,upvotes scored_comments owner_body_edits,n_v n_c n_phu
+40.4,40,4,postLinks:pl posts:p users:u badges:b,upvotes scored_comments owner_body_edits owner_upvotes,n_v n_c n_phu n_vu
+41.0,41,0,postLinks:pl posts:p users:u badges:b,,
+41.1,41,1,postLinks:pl posts:p users:u badges:b,owner_upvotes,n_vu
+41.2,41,2,postLinks:pl posts:p users:u badges:b,owner_upvotes owner_scored_comments,n_vu n_cu
+41.3,41,3,postLinks:pl posts:p users:u badges:b,owner_upvotes owner_scored_comments body_edits,n_vu n_cu n_ph
+41.4,41,4,postLinks:pl posts:p users:u badges:b,owner_upvotes owner_scored_comments body_edits owner_body_edits,n_vu n_cu n_ph n_phu
+42.0,42,0,postHistory:ph posts:p votes:v users:u,,
+42.1,42,1,postHistory:ph posts:p votes:v users:u,owner_badges,n_b
+42.2,42,2,postHistory:ph posts:p votes:v users:u,owner_badges incoming_links,n_b n_pli
+42.3,42,3,postHistory:ph posts:p votes:v users:u,owner_badges incoming_links scored_comments,n_b n_pli n_c
+42.4,42,4,postHistory:ph posts:p votes:v users:u,owner_badges incoming_links scored_comments linked_posts,n_b n_pli n_c n_pl
+43.0,43,0,postHistory:ph posts:p users:u badges:b,,
+43.1,43,1,postHistory:ph posts:p users:u badges:b,upvotes,n_v
+43.2,43,2,postHistory:ph posts:p users:u badges:b,upvotes incoming_links,n_v n_pli
+43.3,43,3,postHistory:ph posts:p users:u badges:b,upvotes incoming_links owner_scored_comments,n_v n_pli n_cu
+43.4,43,4,postHistory:ph posts:p users:u badges:b,upvotes incoming_links owner_scored_comments owner_upvotes,n_v n_pli n_cu n_vu
+44.0,44,0,postHistory:ph posts:p users:u badges:b,,
+44.1,44,1,postHistory:ph posts:p users:u badges:b,linked_posts,n_pl
+44.2,44,2,postHistory:ph posts:p users:u badges:b,linked_posts upvotes,n_pl n_v
+44.3,44,3,postHistory:ph posts:p users:u badges:b,linked_posts upvotes scored_comments,n_pl n_v n_c
+44.4,44,4,postHistory:ph posts:p users:u badges:b,linked_posts upvotes scored_comments owner_scored_comments,n_pl n_v n_c n_cu
+80.0,80,0,comments:c posts:p users:u,,
+80.1,80,1,comments:c posts:p users:u,incoming_links,n_pli
+80.2,80,2,comments:c posts:p users:u,incoming_links owner_upvotes,n_pli n_vu
+80.3,80,3,comments:c posts:p users:u,incoming_links owner_upvotes owner_badges,n_pli n_vu n_b
+80.4,80,4,comments:c posts:p users:u,incoming_links owner_upvotes owner_badges body_edits,n_pli n_vu n_b n_ph
+81.0,81,0,comments:c posts:p users:u,,
+81.1,81,1,comments:c posts:p users:u,owner_body_edits,n_phu
+81.2,81,2,comments:c posts:p users:u,owner_body_edits upvotes,n_phu n_v
+81.3,81,3,comments:c posts:p users:u,owner_body_edits upvotes incoming_links,n_phu n_v n_pli
+81.4,81,4,comments:c posts:p users:u,owner_body_edits upvotes incoming_links owner_badges,n_phu n_v n_pli n_b
+86.0,86,0,comments:c votes:v users:u posts:p,,
+86.1,86,1,comments:c votes:v users:u posts:p,body_edits,n_ph
+86.2,86,2,comments:c votes:v users:u posts:p,body_edits owner_badges,n_ph n_b
+86.3,86,3,comments:c votes:v users:u posts:p,body_edits owner_badges linked_posts,n_ph n_b n_pl
+86.4,86,4,comments:c votes:v users:u posts:p,body_edits owner_badges linked_posts incoming_links,n_ph n_b n_pl n_pli
+89.0,89,0,postHistory:ph posts:p users:u,,
+89.1,89,1,postHistory:ph posts:p users:u,owner_badges,n_b
+89.2,89,2,postHistory:ph posts:p users:u,owner_badges owner_upvotes,n_b n_vu
+89.3,89,3,postHistory:ph posts:p users:u,owner_badges owner_upvotes scored_comments,n_b n_vu n_c
+89.4,89,4,postHistory:ph posts:p users:u,owner_badges owner_upvotes scored_comments linked_posts,n_b n_vu n_c n_pl
+90.0,90,0,postHistory:ph posts:p users:u,,
+90.1,90,1,postHistory:ph posts:p users:u,upvotes,n_v
+90.2,90,2,postHistory:ph posts:p users:u,upvotes owner_scored_comments,n_v n_cu
+90.3,90,3,postHistory:ph posts:p users:u,upvotes owner_scored_comments incoming_links,n_v n_cu n_pli
+90.4,90,4,postHistory:ph posts:p users:u,upvotes owner_scored_comments incoming_links owner_badges,n_v n_cu n_pli n_b
+91.0,91,0,postHistory:ph posts:p users:u,,
+91.1,91,1,postHistory:ph posts:p users:u,owner_upvotes,n_vu
+91.2,91,2,postHistory:ph posts:p users:u,owner_upvotes scored_comments,n_vu n_c
+91.3,91,3,postHistory:ph posts:p users:u,owner_upvotes scored_comments linked_posts,n_vu n_c n_pl
+91.4,91,4,postHistory:ph posts:p users:u,owner_upvotes scored_comments linked_posts owner_badges,n_vu n_c n_pl n_b
+92.0,92,0,postHistory:ph posts:p users:u,,
+92.1,92,1,postHistory:ph posts:p users:u,owner_scored_comments,n_cu
+92.2,92,2,postHistory:ph posts:p users:u,owner_scored_comments upvotes,n_cu n_v
+92.3,92,3,postHistory:ph posts:p users:u,owner_scored_comments upvotes incoming_links,n_cu n_v n_pli
+92.4,92,4,postHistory:ph posts:p users:u,owner_scored_comments upvotes incoming_links owner_badges,n_cu n_v n_pli n_b
+93.0,93,0,votes:v posts:p users:u,,
+93.1,93,1,votes:v posts:p users:u,owner_body_edits,n_phu
+93.2,93,2,votes:v posts:p users:u,owner_body_edits linked_posts,n_phu n_pl
+93.3,93,3,votes:v posts:p users:u,owner_body_edits linked_posts owner_scored_comments,n_phu n_pl n_cu
+93.4,93,4,votes:v posts:p users:u,owner_body_edits linked_posts owner_scored_comments owner_badges,n_phu n_pl n_cu n_b
+94.0,94,0,votes:v posts:p users:u,,
+94.1,94,1,votes:v posts:p users:u,scored_comments,n_c
+94.2,94,2,votes:v posts:p users:u,scored_comments owner_body_edits,n_c n_phu
+94.3,94,3,votes:v posts:p users:u,scored_comments owner_body_edits linked_posts,n_c n_phu n_pl
+94.4,94,4,votes:v posts:p users:u,scored_comments owner_body_edits linked_posts owner_badges,n_c n_phu n_pl n_b
+95.0,95,0,comments:c postHistory:ph votes:v posts:p,,
+95.1,95,1,comments:c postHistory:ph votes:v posts:p,high_reputation_owner,n_u
+95.2,95,2,comments:c postHistory:ph votes:v posts:p,high_reputation_owner owner_badges,n_u n_b
+95.3,95,3,comments:c postHistory:ph votes:v posts:p,high_reputation_owner owner_badges incoming_links,n_u n_b n_pli
+95.4,95,4,comments:c postHistory:ph votes:v posts:p,high_reputation_owner owner_badges incoming_links linked_posts,n_u n_b n_pli n_pl
+96.0,96,0,comments:c postHistory:ph votes:v posts:p,,
+96.1,96,1,comments:c postHistory:ph votes:v posts:p,high_reputation_owner,n_u
+96.2,96,2,comments:c postHistory:ph votes:v posts:p,high_reputation_owner incoming_links,n_u n_pli
+96.3,96,3,comments:c postHistory:ph votes:v posts:p,high_reputation_owner incoming_links owner_badges,n_u n_pli n_b
+96.4,96,4,comments:c postHistory:ph votes:v posts:p,high_reputation_owner incoming_links owner_badges linked_posts,n_u n_pli n_b n_pl
+97.0,97,0,comments:c posts:p votes:v users:u,,
+97.1,97,1,comments:c posts:p votes:v users:u,body_edits,n_ph
+97.2,97,2,comments:c posts:p votes:v users:u,body_edits linked_posts,n_ph n_pl
+97.3,97,3,comments:c posts:p votes:v users:u,body_edits linked_posts owner_badges,n_ph n_pl n_b
+97.4,97,4,comments:c posts:p votes:v users:u,body_edits linked_posts owner_badges owner_body_edits,n_ph n_pl n_b n_phu
+117.0,117,0,postHistory:ph posts:p votes:v users:u,,
+117.1,117,1,postHistory:ph posts:p votes:v users:u,incoming_links,n_pli
+117.2,117,2,postHistory:ph posts:p votes:v users:u,incoming_links scored_comments,n_pli n_c
+117.3,117,3,postHistory:ph posts:p votes:v users:u,incoming_links scored_comments owner_badges,n_pli n_c n_b
+117.4,117,4,postHistory:ph posts:p votes:v users:u,incoming_links scored_comments owner_badges owner_scored_comments,n_pli n_c n_b n_cu
+118.0,118,0,postHistory:ph posts:p votes:v users:u,,
+118.1,118,1,postHistory:ph posts:p votes:v users:u,linked_posts,n_pl
+118.2,118,2,postHistory:ph posts:p votes:v users:u,linked_posts owner_scored_comments,n_pl n_cu
+118.3,118,3,postHistory:ph posts:p votes:v users:u,linked_posts owner_scored_comments owner_badges,n_pl n_cu n_b
+118.4,118,4,postHistory:ph posts:p votes:v users:u,linked_posts owner_scored_comments owner_badges scored_comments,n_pl n_cu n_b n_c
+119.0,119,0,postHistory:ph posts:p users:u badges:b,,
+119.1,119,1,postHistory:ph posts:p users:u badges:b,owner_upvotes,n_vu
+119.2,119,2,postHistory:ph posts:p users:u badges:b,owner_upvotes scored_comments,n_vu n_c
+119.3,119,3,postHistory:ph posts:p users:u badges:b,owner_upvotes scored_comments incoming_links,n_vu n_c n_pli
+119.4,119,4,postHistory:ph posts:p users:u badges:b,owner_upvotes scored_comments incoming_links upvotes,n_vu n_c n_pli n_v
+120.0,120,0,postHistory:ph posts:p users:u badges:b,,
+120.1,120,1,postHistory:ph posts:p users:u badges:b,upvotes,n_v
+120.2,120,2,postHistory:ph posts:p users:u badges:b,upvotes owner_scored_comments,n_v n_cu
+120.3,120,3,postHistory:ph posts:p users:u badges:b,upvotes owner_scored_comments linked_posts,n_v n_cu n_pl
+120.4,120,4,postHistory:ph posts:p users:u badges:b,upvotes owner_scored_comments linked_posts owner_upvotes,n_v n_cu n_pl n_vu
