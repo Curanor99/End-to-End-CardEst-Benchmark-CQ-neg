@@ -4,12 +4,14 @@
 from itertools import combinations
 from pathlib import Path
 import csv
+import importlib.util
 import io
 import re
 
 
 ROOT = Path(__file__).resolve().parent
-SOURCE = ROOT.parent / "stats_CEB.sql"
+SOURCE = ROOT.parent.parent / "stats_CEB" / "stats_CEB.sql"
+BASES = ROOT.parent / "cardest_added_negation" / "bases.py"
 ALIAS = re.compile(r"(\w+)\s+as\s+(\w+)", re.IGNORECASE)
 REFERENCE = re.compile(r"\b(\w+)\.(\w+)\b")
 EQUALITY = re.compile(r"\s*(\w+)\.(\w+)\s*=\s*(\w+)\.(\w+)\s*")
@@ -195,12 +197,17 @@ def build_cq(sources, conditions, negative):
 def main():
     results = {style: [] for style in ("not_exists", "not_in", "except", "left_join", "cq")}
     source_lines = SOURCE.read_text(encoding="utf-8").splitlines()
+    spec = importlib.util.spec_from_file_location("cardest_bases", BASES)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Cannot load base-query selector from {BASES}")
+    base_selector = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(base_selector)
+    bases = base_selector.select_bases(source_lines, parse)
     omitted = []
     manifest = io.StringIO(newline="")
     writer = csv.writer(manifest, lineterminator="\n")
     writer.writerow(("id", "source_line", "negated_count", "positive_aliases", "negated_aliases"))
-    for line_number, line in enumerate(source_lines, 1):
-        query, sources, conditions = parse(line)
+    for line_number, query, sources, conditions in bases:
         order = sequence(sources, conditions)
         omitted.extend(f"{line_number}.{i}" for i in range(len(order) + 1, len(sources)))
         for i in range(len(order) + 1):
@@ -220,12 +227,12 @@ def main():
                     output = build_sql(sources, conditions, negative, style)
                 results[style].append(f"{identifier}||{output}")
     for style, lines in results.items():
-        (ROOT / f"{style}.sql" if style != "cq" else ROOT / "cq.txt").write_text(
-            "\n".join(lines) + "\n", encoding="utf-8"
+        (ROOT / f"{style}.sql" if style != "cq" else ROOT / "cq.txt").write_bytes(
+            ("\n".join(lines) + "\n").encode("utf-8")
         )
-    (ROOT / "manifest.csv").write_text(manifest.getvalue(), encoding="utf-8")
-    (ROOT / "omitted_ids.txt").write_text("\n".join(omitted) + "\n", encoding="utf-8")
-    print(f"Source queries: {len(source_lines)}")
+    (ROOT / "manifest.csv").write_bytes(manifest.getvalue().encode("utf-8"))
+    (ROOT / "omitted_ids.txt").write_bytes(("\n".join(omitted) + "\n").encode("utf-8"))
+    print(f"Base queries: {len(bases)}")
     print(f"Queries per file: {len(results['cq'])}")
     print(f"Omitted further sequence levels: {len(omitted)}")
     print("Omitted IDs:", ", ".join(omitted))

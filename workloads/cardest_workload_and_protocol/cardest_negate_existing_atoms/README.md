@@ -1,19 +1,21 @@
 # CardEst negation workload
 
-The four SQL files and `cq.txt` contain the same 580 query IDs in the format
+The four SQL files and `cq.txt` contain the same 131 query IDs in the format
 `id||query`, one query per line. The IDs are not part of SQL: strip the prefix
 before execution. The SQL uses the input workload's PostgreSQL-style timestamp
 casts. `manifest.csv` records the positive and negated relation aliases for
 each ID.
 
-The first ID component is the 1-based line number in `stats_CEB.sql`. The
+The workload uses the same 40 base queries as `cardest_added_negation`: one
+2-relation, 19 3-relation, and 20 4-relation queries. The first ID component
+is the 1-based line number in `stats_CEB.sql`. The
 second is the number of negated relations: `.0` is the unchanged original SQL,
 `.1` the first derived query, and so on. The source cardinalities were removed;
 the original cardinalities are not valid for derived queries.
 
 ## Generation and omissions
 
-For each source query, the generator chooses a maximum-size set of relation
+For each selected base query, the generator chooses a maximum-size set of relation
 aliases with no original join between two members. Ties are broken by the
 order of aliases in the original `FROM` clause. Successive variants negate the
 first one, then the first two, and so on. Thus each sequence is nested, but it
@@ -24,7 +26,7 @@ join remains in its positive or negated scope. A negated relation denotes the
 absence of a matching row satisfying its filters **and all its joins to
 positive relations**. A join shared by two negated relations cannot be placed
 in two independent anti-joins without changing its meaning; these choices are
-therefore excluded. For 52 source queries this prevents reaching a single
+therefore excluded. For 8 selected base queries this prevents reaching a single
 positive relation. `omitted_ids.txt` lists the missing sequence levels; they
 are omitted from all five query files. Other interpretations, such as nested
 negation or treating multiple relations as one negated subquery, would produce
@@ -59,6 +61,8 @@ schemas; report that modeling choice when computing hypergraphs or width.
 
 ## Reproduction
 
-With Python 3, run `python cardest_negation_workload\generate.py` from the parent
-directory. It reads the adjacent `stats_CEB.sql` and overwrites the generated
-files in this directory. The generator uses only the Python standard library.
+With Python 3, run `python cardest_negate_existing_atoms\generate.py` from the
+parent directory. It reads `workloads\stats_CEB\stats_CEB.sql`, shares the
+base-query selector in `cardest_added_negation\bases.py`, and overwrites the
+generated files in this directory. The generator uses only the Python standard
+library.
