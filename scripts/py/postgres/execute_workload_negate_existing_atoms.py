@@ -35,7 +35,7 @@ MEASURED_RUNS = 10
 
 RANDOM_SEED = 42
 
-OUTPUT_DIR = Path("benchmark_results/negate_existing_atoms")
+OUTPUT_DIR = Path("benchmark_results/postgres/negate_existing_atoms")
 
 def get_connection():
     conn = psycopg2.connect(
@@ -77,10 +77,6 @@ def get_queries(file_path):
     return queries
 
 
-# --------------------------------------------------
-# Execute one query and collect measurements
-# --------------------------------------------------
-
 def execute_query(cursor, query):
     explain_query = (
             "EXPLAIN "
@@ -91,8 +87,6 @@ def execute_query(cursor, query):
     cursor.execute(explain_query)
     result = cursor.fetchone()[0]
 
-    # psycopg2 normally converts JSON into Python objects.
-    # This also handles the case where it returns a string.
     if isinstance(result, str):
         result = json.loads(result)
 
@@ -207,7 +201,6 @@ def main():
                             "error": "",
                         })
 
-                        # Save the complete execution plan.
                         with open(
                                 plans_file, "a", encoding="utf-8"
                         ) as plan_file:

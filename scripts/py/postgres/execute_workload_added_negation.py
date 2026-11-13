@@ -18,7 +18,7 @@ MEASURED_RUNS = 10
 
 RANDOM_SEED = 42
 
-OUTPUT_DIR = Path("benchmark_results/added_negation")
+OUTPUT_DIR = Path("benchmark_results/postgres/added_negation")
 
 def get_connection():
     conn = psycopg2.connect(
