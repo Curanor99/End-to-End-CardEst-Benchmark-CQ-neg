@@ -1,0 +1,21 @@
+CREATE INDEX IF NOT EXISTS idx_posts_owneruserid ON posts (owneruserid);
+CREATE INDEX IF NOT EXISTS idx_posts_lasteditoruserid ON posts (lasteditoruserid);
+CREATE INDEX IF NOT EXISTS idx_postlinks_relatedpostid ON postLinks (relatedpostid);
+CREATE INDEX IF NOT EXISTS idx_postlinks_postid ON postLinks (postid);
+CREATE INDEX IF NOT EXISTS idx_posthistory_postid ON postHistory (postid);
+CREATE INDEX IF NOT EXISTS idx_posthistory_userid ON postHistory (userid);
+CREATE INDEX IF NOT EXISTS idx_comments_postid ON comments (postid);
+CREATE INDEX IF NOT EXISTS idx_comments_userid ON comments (userid);
+CREATE INDEX IF NOT EXISTS idx_votes_userid ON votes (userid);
+CREATE INDEX IF NOT EXISTS idx_votes_postid ON votes (postid);
+CREATE INDEX IF NOT EXISTS idx_badges_userid ON badges (userid);
+CREATE INDEX IF NOT EXISTS idx_tags_excerptpostid ON tags (excerptpostid);
+
+ANALYZE badges;
+ANALYZE comments;
+ANALYZE postHistory;
+ANALYZE postLinks;
+ANALYZE posts;
+ANALYZE tags;
+ANALYZE users;
+ANALYZE votes;

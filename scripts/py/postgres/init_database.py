@@ -1,11 +1,9 @@
+from common import get_connection
 
-import psycopg2
-from pathlib import Path
 
-INDEX_SQL_FILE = "scripts/sql/stats_index.sql"
-CREATE_TABLES_SQL_FILE = "datasets/stats_simplified/stats.sql"
-
-DATASET_DIR = Path("datasets/stats_simplified")
+INDEX_SQL_FILE = "scripts/sql/postgres/stats_index.sql"
+CREATE_TABLES_SQL_FILE = "scripts/sql/postgres/stats.sql"
+DATASET_DIR = "datasets/stats_simplified"
 
 TABLES = {
     "badges": "badges.csv",
@@ -19,51 +17,41 @@ TABLES = {
 }
 
 
-def get_connection():
-    return psycopg2.connect(
-        database="benchmark",
-        user="postgres",
-        password="postgres",
-        host="127.0.0.1",
-        port=5432,
-    )
-
-
 def load_csv_files(cursor):
     for table, filename in TABLES.items():
-        filepath = DATASET_DIR / filename
-
+        filepath = f"{DATASET_DIR}/{filename}"
         print(f"Loading {filepath} into {table}...")
 
         with open(filepath, "r", encoding="utf-8") as csv_file:
             cursor.copy_expert(
                 f"COPY {table} FROM STDIN WITH CSV HEADER",
-                csv_file
+                csv_file,
             )
 
 
-if __name__ == "__main__":
-    conn = get_connection()
-
+def main():
+    connection = get_connection()
     try:
         print("Connection established successfully.")
-
-        with conn:
-            with conn.cursor() as cursor:
-                print("Creating schema...")
+        with connection:
+            with connection.cursor() as cursor:
                 with open(CREATE_TABLES_SQL_FILE, "r") as create_file:
+                    print("Creating schema...")
                     cursor.execute(create_file.read())
 
                 load_csv_files(cursor)
 
-                print("Creating indexes...")
-                with open(INDEX_SQL_FILE, "r") as sql_file:
-                    cursor.execute(sql_file.read())
+                with open(INDEX_SQL_FILE, "r") as index_file:
+                    print("Creating indexes...")
+                    cursor.execute(index_file.read())
 
         print("Database initialization completed successfully.")
-
-    except Exception as e:
-        print(f"Database initialization failed: {e}")
-
+    except Exception as error:
+        print(f"Database initialization failed: {error}")
+        raise
     finally:
-        conn.close()
+        connection.close()
+
+
+if __name__ == "__main__":
+    main()
