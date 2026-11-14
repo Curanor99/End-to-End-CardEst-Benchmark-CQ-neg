@@ -35,8 +35,8 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 22.1,22,1,p u,v
 22.2,22,2,p,v u
 25.0,25,0,c p pl v,
-25.1,25,1,p pl v,c
-25.2,25,2,p pl,c v
+25.1,25,1,c pl v,p
+25.2,25,2,c pl,p v
 26.0,26,0,c p pl u,
 26.1,26,1,p pl u,c
 26.2,26,2,p u,c pl
@@ -61,20 +61,20 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 31.3,31,3,u,v p b
 40.0,40,0,pl p u b,
 40.1,40,1,p u b,pl
-40.2,40,2,p b,pl u
+40.2,40,2,p u,pl b
 41.0,41,0,pl p u b,
 41.1,41,1,p u b,pl
-41.2,41,2,p b,pl u
+41.2,41,2,p u,pl b
 42.0,42,0,ph p v u,
 42.1,42,1,p v u,ph
 42.2,42,2,p u,ph v
 42.3,42,3,p,ph v u
 43.0,43,0,ph p u b,
-43.1,43,1,p u b,ph
-43.2,43,2,p b,ph u
+43.1,43,1,ph p b,u
+43.2,43,2,ph p,u b
 44.0,44,0,ph p u b,
-44.1,44,1,p u b,ph
-44.2,44,2,p b,ph u
+44.1,44,1,ph p b,u
+44.2,44,2,ph p,u b
 80.0,80,0,c p u,
 80.1,80,1,p u,c
 80.2,80,2,u,c p
@@ -82,8 +82,8 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 81.1,81,1,p u,c
 81.2,81,2,u,c p
 86.0,86,0,c v u p,
-86.1,86,1,v u p,c
-86.2,86,2,u p,c v
+86.1,86,1,c u p,v
+86.2,86,2,c p,v u
 89.0,89,0,ph p u,
 89.1,89,1,p u,ph
 89.2,89,2,u,ph p

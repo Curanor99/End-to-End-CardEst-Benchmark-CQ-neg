@@ -6,39 +6,48 @@ before execution. The SQL uses the input workload's PostgreSQL-style timestamp
 casts. `manifest.csv` records the positive and negated relation aliases for
 each ID.
 
-The workload uses the same 40 base queries as `cardest_added_negation`: one
-2-relation, 19 3-relation, and 20 4-relation queries. The first ID component
-is the 1-based line number in `stats_CEB.sql`. The
+The first ID component is the 1-based line number in `stats_CEB.sql`. The
 second is the number of negated relations: `.0` is the unchanged original SQL,
 `.1` the first derived query, and so on. The source cardinalities were removed;
 the original cardinalities are not valid for derived queries.
 
 ## Generation and omissions
 
-For each selected base query, the generator chooses a maximum-size set of relation
-aliases with no original join between two members. Ties are broken by the
-order of aliases in the original `FROM` clause. Successive variants negate the
-first one, then the first two, and so on. Thus each sequence is nested, but it
-is only one of the possible sequences.
+The generator uses the same 40 source queries as the added-negation workload.
+For each query it finds a longest sequence of negations for which the positive
+join graph remains connected at every level and no original join connects two
+negated aliases. Ties are broken by the original `FROM` order. Successive
+variants negate the first alias, then the first two, and so on; this is only
+one of the possible sequences.
+
+Negating a bridge relation can disconnect the positive join graph and produce
+a Cartesian product. The connectivity restriction avoids generating such
+variants, but does not guarantee that all remaining queries are fast. The
+selected aliases for some IDs changed when this restriction was added: do not
+compare derived-query results across generator versions by ID alone.
 
 Every original filter remains attached to its relation, and every original
 join remains in its positive or negated scope. A negated relation denotes the
 absence of a matching row satisfying its filters **and all its joins to
 positive relations**. A join shared by two negated relations cannot be placed
 in two independent anti-joins without changing its meaning; these choices are
-therefore excluded. For 8 selected base queries this prevents reaching a single
-positive relation. `omitted_ids.txt` lists the missing sequence levels; they
-are omitted from all five query files. Other interpretations, such as nested
-negation or treating multiple relations as one negated subquery, would produce
-different queries.
+therefore excluded. These restrictions prevent eight source queries from
+reaching a single positive relation. `omitted_ids.txt` lists the missing
+sequence levels; they are omitted from all five query files. Other
+interpretations, such as nested negation or treating multiple relations as one
+negated subquery, would produce different queries.
 
-`NOT IN` checks for null outer keys and excludes null inner keys. `EXCEPT`
-likewise handles null outer keys explicitly and uses `EXISTS` to test whether
-the outer key tuple survives the difference. These guards are necessary to
-match equality-based `NOT EXISTS` under SQL's null semantics. `LEFT JOIN` tests
-a join column that must be non-null on a successful equality match, rather than
-assuming a nullable column is a primary key. All generated variants have such
-a join column, so none requires a further omission from `left_join.sql`.
+`NOT IN` checks for null outer keys, excludes null inner keys, and uses
+`DISTINCT` to reduce the size of its membership set. `EXCEPT` subtracts each
+negative relation's key tuples from a set of candidate positive key tuples and
+tests membership in the result. Candidate keys come from the positive
+relations supplying the anti-join keys, with their applicable positive
+filters. The outer query retains the original positive joins and their bag
+multiplicity. Null outer keys are accepted explicitly because they cannot
+match SQL equality joins. The set difference is uncorrelated, avoiding a
+repeated difference for every positive row; computing it still has a cost.
+`LEFT JOIN` tests a join column that must be non-null on a successful equality
+match, rather than assuming a nullable column is a primary key.
 
 ## CQ notation
 
@@ -61,8 +70,7 @@ schemas; report that modeling choice when computing hypergraphs or width.
 
 ## Reproduction
 
-With Python 3, run `python cardest_negate_existing_atoms\generate.py` from the
-parent directory. It reads `workloads\stats_CEB\stats_CEB.sql`, shares the
-base-query selector in `cardest_added_negation\bases.py`, and overwrites the
-generated files in this directory. The generator uses only the Python standard
-library.
+From the repository root, run
+`python workloads\cardest_workload_and_protocol\cardest_negate_existing_atoms\generate.py`.
+It reads `workloads\stats_CEB\stats_CEB.sql` and overwrites the generated files
+in this directory. The generator uses only the Python standard library.

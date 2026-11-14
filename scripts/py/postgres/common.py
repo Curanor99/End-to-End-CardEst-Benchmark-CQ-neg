@@ -40,8 +40,7 @@ def get_queries(file_path):
             query_id, separator, raw_query = line.partition("||")
             if not separator:
                 raise ValueError(
-                    f"Invalid query format in {file_path}, "
-                    f"line {line_number}"
+                    f"Invalid query format in {file_path}, line {line_number}"
                 )
 
             queries[query_id.strip()] = raw_query.strip().rstrip(";")
@@ -51,9 +50,7 @@ def get_queries(file_path):
 
 def execute_query(cursor, query):
     explain_query = (
-        "EXPLAIN "
-        "(ANALYZE, FORMAT JSON, TIMING OFF, SUMMARY ON, BUFFERS) "
-        + query
+        f"EXPLAIN (ANALYZE, FORMAT JSON, TIMING OFF, SUMMARY ON, BUFFERS) {query}"
     )
     cursor.execute(explain_query)
     result = cursor.fetchone()[0]
@@ -101,7 +98,9 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
 
             for warmup_run in range(1, WARMUP_RUNS + 1):
                 print(f"Warm-up {warmup_run}/{WARMUP_RUNS}")
-                for job in warmup_jobs:
+                for job_index in range(len(warmup_jobs)):
+                    job = warmup_jobs[job_index]
+                    print(f"Execute query with query id {job['query_id']} as {job_index + 1}/{len(warmup_jobs)}. query")
                     try:
                         execute_query(cursor, job["query"])
                     except Exception as error:
@@ -118,7 +117,10 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
                 current_jobs = jobs.copy()
                 random.shuffle(current_jobs)
 
-                for job in current_jobs:
+                for job_index in range(len(current_jobs)):
+                    job = current_jobs[job_index]
+                    print(f"Execute query with query id {job['query_id']} as {job_index + 1}/{len(current_jobs)}. query")
+
                     record = {
                         "timestamp": datetime.now().isoformat(),
                         "query_id": job["query_id"],
