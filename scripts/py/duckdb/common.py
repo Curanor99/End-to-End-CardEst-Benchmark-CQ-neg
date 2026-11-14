@@ -35,7 +35,14 @@ def get_connection():
             "Run scripts/py/duckdb/init_database.py first."
         )
 
-    return duckdb.connect(str(DATABASE_FILE))
+    connection = duckdb.connect(str(DATABASE_FILE))
+
+    connection.execute("SET memory_limit = '16GB'")
+    connection.execute("SET threads = 4")
+    connection.execute("SET preserve_insertion_order = false")
+    connection.execute("SET max_temp_directory_size = '50GB'")
+
+    return connection
 
 
 def get_queries(file_path):

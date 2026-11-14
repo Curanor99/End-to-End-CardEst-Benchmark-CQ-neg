@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from common import REPO_ROOT, get_queries, run_benchmark
 
 
