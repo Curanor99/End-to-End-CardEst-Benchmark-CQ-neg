@@ -15,14 +15,20 @@ WARMUP_RUNS = 2
 MEASURED_RUNS = 10
 RANDOM_SEED = 42
 
+HOST = "127.0.0.1"
+PORT = 5432
+DB_NAME = "benchmark"
+USERNAME = "postgres"
+PASSWORD = "postgres"
+
 
 def get_connection(autocommit=False):
     connection = psycopg2.connect(
-        database="benchmark",
-        user="postgres",
-        password=os.environ.get("POSTGRES_PASSWORD", "postgres"),
-        host="127.0.0.1",
-        port=5432,
+        database=DB_NAME,
+        user=USERNAME,
+        password=PASSWORD,
+        host=HOST,
+        port=PORT,
     )
     connection.autocommit = autocommit
     return connection
