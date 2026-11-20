@@ -1,6 +1,6 @@
 # CardEst negation workload
 
-The four SQL files and `cq.txt` contain the same 131 query IDs in the format
+The four SQL files and `cq.txt` contain the same 568 query IDs in the format
 `id||query`, one query per line. The IDs are not part of SQL: strip the prefix
 before execution. The SQL uses the input workload's PostgreSQL-style timestamp
 casts. `manifest.csv` records the positive and negated relation aliases for
@@ -13,11 +13,7 @@ the original cardinalities are not valid for derived queries.
 
 ## Generation and omissions
 
-The generator uses the same selector as the added-negation workload, not a
-list of source line numbers. It requires `posts as p` and at least four
-eligible added-negation templates, then selects one 2-relation, 19 3-relation,
-and 20 4-relation queries round-robin across sets of positive relation names
-within each size.
+Like the added-negation generator, this generator uses all 146 source queries.
 For each query it finds a longest sequence of negations for which the positive
 join graph remains connected at every level and no original join connects two
 negated aliases. Among equally long valid sequences, it deterministically
@@ -38,8 +34,7 @@ join remains in its positive or negated scope. A negated relation denotes the
 absence of a matching row satisfying its filters **and all its joins to
 positive relations**. A join shared by two negated relations cannot be placed
 in two independent anti-joins without changing its meaning; these choices are
-therefore excluded. These restrictions prevent eight source queries from
-reaching a single positive relation. `omitted_ids.txt` lists the missing
+therefore excluded. `omitted_ids.txt` lists the 64 missing
 sequence levels; they are omitted from all five query files. Other
 interpretations, such as nested negation or treating multiple relations as one
 negated subquery, would produce different queries.

@@ -1,10 +1,10 @@
 # CardEst workload with additional negated atoms
 
-`not_exists.sql` and `cq.txt` each contain 200 lines in the form `id||query`.
+`not_exists.sql` and `cq.txt` each contain 638 lines in the form `id||query`.
 Remove the ID and separator before executing SQL. `manifest.csv` identifies the
 base relations and added negation templates for every query.
 
-There are 40 original CardEst queries, each followed by four nested
+All 146 original CardEst queries are included, each with one to four nested
 extensions. In `N.K`, `N` is the 1-based source line and `K` is the number of
 added negative atoms: `.0` is the unmodified base SQL, `.1` adds one
 `NOT EXISTS`, and each following level retains all previous conditions and
@@ -15,11 +15,10 @@ combining results.
 
 ## Design
 
-Both generators use the same selector. It requires `posts as p` and at least
-four eligible added-negation templates. It selects one 2-relation, 19
-3-relation, and 20 4-relation queries, visiting sets of positive relation
-names round-robin within each size. Added atoms use these post-related
-conditions:
+Added atoms correlate to a post or user key from the existing query. If
+`posts` is present, the generator uses its ID and owner ID. Otherwise it
+chooses the first available post or user key in its fixed anchor order,
+such as `comments.PostId` or `users.Id`. The template types are:
 
 | Template | The negated condition rules out |
 |---|---|
@@ -28,28 +27,29 @@ conditions:
 | `body_edits` | A post-history entry of type 5 for the post |
 | `linked_posts` | A type-1 link originating at the post |
 | `incoming_links` | A type-1 link whose related post is the post |
-| `owner_badges` | A badge belonging to the post's owner |
-| `high_reputation_owner` | An owner with reputation at least 1,000 |
-| `owner_scored_comments` | A comment by the owner with score at least 1 |
-| `owner_upvotes` | A type-2 vote by the owner |
-| `owner_body_edits` | A type-5 post-history entry by the owner |
+| `user_badges` | A badge belonging to the correlated user |
+| `high_reputation_user` | A correlated user with reputation at least 1,000 |
+| `user_scored_comments` | A comment by the correlated user with score at least 1 |
+| `user_upvotes` | A type-2 vote by the correlated user |
+| `user_body_edits` | A type-5 post-history entry by the correlated user |
+| `user_scored_posts` | A post owned by the correlated user with score at least 1 |
+| `referenced_scored_post` | A referenced post with score at least 1 |
+| `tag_excerpt` | A tag whose excerpt is the correlated post |
 
 These type values are commonly used for upvotes, body edits, and linked posts
 in the Stack Exchange schema; verify the codes against the dataset version used
-for an experiment. Owner-related conditions use `p.OwnerUserId`. If that value
-is NULL, equality finds no matching owner row and the corresponding negation
-holds, as in SQL.
+for an experiment. If the correlation key is NULL, equality finds no
+matching row and the corresponding negation holds.
 
 A template is eligible only when its table is absent from the positive base
-query, avoiding direct contradictions with a positive occurrence of the same
-table. Each sequence uses as many distinct tables as possible; if necessary,
-it can use two differently correlated atoms over the same table, such as
-comments on the post and comments by its owner. The generator deterministically
+query and the required correlation key is available. Each sequence uses up to
+four distinct eligible tables, so queries with fewer eligible tables have
+shorter sequences. The generator deterministically
 swaps whole sequences to reduce skew in physical-table counts at each emitted
 negation depth. Counts include atoms carried over from earlier depths. When
 choices are equally good for table coverage, it favors more even template
-usage by sequence position. Eligibility limits the balance: for example,
-`users` is absent from only nine bases.
+usage by sequence position. Eligibility and varying sequence lengths limit
+the balance, especially at deeper variants.
 
 Derived queries keep their IDs when the generator changes their templates.
 Do not compare results across generator versions by ID alone.

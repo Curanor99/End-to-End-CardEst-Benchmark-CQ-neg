@@ -1,6 +1,6 @@
 """Shared base selection, coverage balancing, and CQ rendering."""
 
-from collections import Counter, defaultdict, deque
+from collections import Counter
 from pathlib import Path
 import re
 
@@ -10,26 +10,6 @@ ALIAS = re.compile(r"(\w+)\s+as\s+(\w+)", re.IGNORECASE)
 REFERENCE = re.compile(r"\b(\w+)\.(\w+)\b")
 EQUALITY = re.compile(r"\s*(\w+)\.(\w+)\s*=\s*(\w+)\.(\w+)\s*")
 
-ADDED_COUNT = 4
-BASE_QUOTAS = ((2, 1), (3, 19), (4, 20))
-TEMPLATES = (
-    ("scored_comments", "comments", "n_c", "n_c.PostId = p.Id", ("n_c.Score >= 1",)),
-    ("upvotes", "votes", "n_v", "n_v.PostId = p.Id", ("n_v.VoteTypeId = 2",)),
-    ("body_edits", "postHistory", "n_ph", "n_ph.PostId = p.Id",
-     ("n_ph.PostHistoryTypeId = 5",)),
-    ("linked_posts", "postLinks", "n_pl", "n_pl.PostId = p.Id", ("n_pl.LinkTypeId = 1",)),
-    ("incoming_links", "postLinks", "n_pli", "n_pli.RelatedPostId = p.Id",
-     ("n_pli.LinkTypeId = 1",)),
-    ("owner_badges", "badges", "n_b", "n_b.UserId = p.OwnerUserId", ()),
-    ("high_reputation_owner", "users", "n_u", "n_u.Id = p.OwnerUserId",
-     ("n_u.Reputation >= 1000",)),
-    ("owner_scored_comments", "comments", "n_cu", "n_cu.UserId = p.OwnerUserId",
-     ("n_cu.Score >= 1",)),
-    ("owner_upvotes", "votes", "n_vu", "n_vu.UserId = p.OwnerUserId",
-     ("n_vu.VoteTypeId = 2",)),
-    ("owner_body_edits", "postHistory", "n_phu", "n_phu.UserId = p.OwnerUserId",
-     ("n_phu.PostHistoryTypeId = 5",)),
-)
 
 
 def parse(line):
@@ -57,38 +37,9 @@ def parse(line):
     return query, sources, conditions
 
 
-def eligible_templates(tables):
-    return [template for template in TEMPLATES if template[1].lower() not in tables]
-
-
 def select_bases(lines):
-    """Choose the same post-centered base queries for both workloads."""
-    groups = defaultdict(deque)
-    sizes = {size for size, _ in BASE_QUOTAS}
-    for number, line in enumerate(lines, 1):
-        query, sources, conditions = parse(line)
-        if ("posts", "p") not in sources or len(sources) not in sizes:
-            continue
-        tables = {table.lower() for table, _ in sources}
-        if len(eligible_templates(tables)) < ADDED_COUNT:
-            continue
-        groups[(len(sources), tuple(sorted(tables)))].append((number, query, sources, conditions))
-
-    selected = []
-    for size, limit in BASE_QUOTAS:
-        buckets = [groups[key] for key in sorted(groups) if key[0] == size]
-        taken = 0
-        while taken < limit:
-            before = taken
-            for bucket in buckets:
-                if bucket:
-                    selected.append(bucket.popleft())
-                    taken += 1
-                    if taken == limit:
-                        break
-            if taken == before:
-                raise ValueError(f"Not enough eligible base queries of size {size}")
-    return sorted(selected)
+    """Keep every source query and its 1-based line number."""
+    return [(number, *parse(line)) for number, line in enumerate(lines, 1)]
 
 
 def prefix_exposures(tables):

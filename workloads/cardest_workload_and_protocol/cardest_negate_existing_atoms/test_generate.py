@@ -1,5 +1,6 @@
 from collections import Counter, defaultdict
 import csv
+import runpy
 import sqlite3
 import unittest
 
@@ -37,7 +38,9 @@ class GenerateTests(unittest.TestCase):
                         break
                     reached = expanded
                 self.assertEqual(reached, positive, (number, count))
-        self.assertLessEqual(max(first_tables.values()), 7)
+        self.assertEqual(len(first_tables), 8)
+        self.assertLessEqual(max(first_tables.values()) - min(
+            count for table, count in first_tables.items() if table != "tags"), 2)
 
     def test_balancer_counts_carried_atoms_at_later_depths(self):
         candidates = {1: [("a", "a", "b")], 2: [("b",)],
@@ -45,21 +48,21 @@ class GenerateTests(unittest.TestCase):
         self.assertEqual(common.balanced_sequences(candidates, lambda _, atom: atom)[3],
                          ("b", "c", "d"))
 
-    def test_base_selector_uses_source_content_not_fixed_line_numbers(self):
+    def test_base_selector_keeps_every_source_line(self):
         lines = common.SOURCE.read_text(encoding="utf-8").splitlines()
         bases = common.select_bases(lines)
-        self.assertEqual(Counter(len(sources) for _, _, sources, _ in bases),
-                         dict(common.BASE_QUOTAS))
-        ineligible = "0||SELECT COUNT(*) FROM users as u WHERE u.Id = 1;"
-        shifted = common.select_bases([ineligible, *lines])
-        self.assertEqual(shifted, [(number + 1, query, sources, conditions)
-                                   for number, query, sources, conditions in bases])
+        self.assertEqual([number for number, _, _, _ in bases], list(range(1, len(lines) + 1)))
+        self.assertEqual([query for _, query, _, _ in bases],
+                         [line.split("||", 1)[1] for line in lines])
 
     def test_added_manifest_preserves_bases_and_balances_physical_tables(self):
         root = generate.ROOT.parent / "cardest_added_negation"
         lines = common.SOURCE.read_text(encoding="utf-8").splitlines()
         bases = common.select_bases(lines)
-        tables = {template[0]: template[1] for template in common.TEMPLATES}
+        added = runpy.run_path(str(root / "generate.py"))
+        eligible = {number: {template[0]: template[1]
+                             for template in added["eligible_templates"](sources)}
+                    for number, _, sources, _ in bases}
         orders = defaultdict(list)
         first_tables = Counter()
         with (root / "manifest.csv").open(newline="", encoding="utf-8") as manifest:
@@ -68,20 +71,21 @@ class GenerateTests(unittest.TestCase):
                 depth = int(row["negated_count"])
                 order = tuple(row["added_templates"].split())
                 positive = {item.split(":")[0] for item in row["positive_relations"].split()}
+                tables = eligible[number]
                 self.assertEqual(len(order), depth)
-                self.assertEqual(len(set(order)), depth)
-                self.assertTrue(positive.isdisjoint(tables[name] for name in order))
+                negated = {tables[name] for name in order}
+                self.assertEqual(len(negated), depth)
+                self.assertTrue(positive.isdisjoint(negated))
                 orders[number].append(order)
                 if depth == 1:
                     first_tables[tables[order[0]]] += 1
-                if depth == common.ADDED_COUNT:
-                    self.assertEqual(len({tables[name] for name in order}),
-                                     min(common.ADDED_COUNT, len(set(tables.values()) - positive)))
         self.assertEqual(list(orders), [number for number, _, _, _ in bases])
-        for prefixes in orders.values():
-            self.assertEqual(len(prefixes), common.ADDED_COUNT + 1)
+        for number, prefixes in orders.items():
+            self.assertGreater(len(prefixes), 1)
+            self.assertEqual(len(prefixes) - 1, min(added["MAX_ADDED"],
+                                                    len(set(eligible[number].values()))))
             self.assertEqual(prefixes, [prefixes[-1][:i] for i in range(len(prefixes))])
-        self.assertEqual(set(first_tables), set(tables.values()))
+        self.assertEqual(set(first_tables), {template[1] for template in added["TEMPLATES"]})
         self.assertLessEqual(max(first_tables.values()) - min(first_tables.values()), 1)
 
     def test_connected_sequence_is_maximal_not_greedy(self):
