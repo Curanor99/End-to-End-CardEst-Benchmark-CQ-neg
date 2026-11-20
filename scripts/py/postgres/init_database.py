@@ -1,9 +1,8 @@
-from common import get_connection
+from common import get_connection, REPO_ROOT
 
-
-INDEX_SQL_FILE = "scripts/sql/postgres/stats_index.sql"
-CREATE_TABLES_SQL_FILE = "scripts/sql/postgres/stats.sql"
-DATASET_DIR = "datasets/stats_simplified"
+CREATE_TABLES_SQL_FILE = REPO_ROOT / "scripts" / "sql" / "stats.sql"
+INDEX_SQL_FILE = REPO_ROOT / "scripts" / "sql" / "stats_index.sql"
+DATASET_DIR = REPO_ROOT / "datasets" / "stats_simplified"
 
 TABLES = {
     "badges": "badges.csv",

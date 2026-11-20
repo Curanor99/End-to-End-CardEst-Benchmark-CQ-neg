@@ -3,8 +3,8 @@ import duckdb
 from common import DATABASE_FILE, REPO_ROOT, ensure_duckdb_version
 
 
-CREATE_TABLES_SQL_FILE = REPO_ROOT / "scripts" / "sql" / "duckdb" / "stats.sql"
-INDEX_SQL_FILE = REPO_ROOT / "scripts" / "sql" / "duckdb" / "stats_index.sql"
+CREATE_TABLES_SQL_FILE = REPO_ROOT / "scripts" / "sql" / "stats.sql"
+INDEX_SQL_FILE = REPO_ROOT / "scripts" / "sql" / "stats_index.sql"
 DATASET_DIR = REPO_ROOT / "datasets" / "stats_simplified"
 
 TABLES = {

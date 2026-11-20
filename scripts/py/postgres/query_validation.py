@@ -1,5 +1,5 @@
 from common import get_queries
-from scripts.py.postgres.common import get_connection
+from scripts.py.postgres.common import get_connection, REPO_ROOT
 
 WORKLOAD_FILES = {
     "NOT_EXISTS": (
@@ -20,14 +20,14 @@ WORKLOAD_FILES = {
     ),
 }
 
-OUTPUT_DIR = "benchmark_results/postgres/negate_existing_atoms"
+OUTPUT_DIR = REPO_ROOT / "benchmark_results" / "postgres" / "negate_existing_atoms"
 
 
 def main():
     queries_by_representation = {}
 
     for representation, relative_path in WORKLOAD_FILES.items():
-        queries = get_queries(relative_path)
+        queries = get_queries(REPO_ROOT / relative_path)
         for query_id in queries:
             if query_id not in queries_by_representation:
                 queries_by_representation[query_id] = {}

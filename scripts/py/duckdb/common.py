@@ -24,7 +24,7 @@ def ensure_duckdb_version():
         )
 
 
-def get_connection():
+def get_connection(timeout=None):
     ensure_duckdb_version()
 
     if not DATABASE_FILE.exists():
@@ -39,6 +39,9 @@ def get_connection():
     connection.execute("SET threads = 4")
     connection.execute("SET preserve_insertion_order = false")
     connection.execute("SET max_temp_directory_size = '100GB'")
+
+    if timeout is not None:
+        connection.execute(f"SET max_execution_time = {timeout}")
 
     connection.execute("SET enable_profiling = 'no_output'")
 
@@ -111,7 +114,7 @@ def execute_query(connection, query):
 
 
 
-def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measured_runs, include_representation=False):
+def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measured_runs, timeout=None, include_representation=False):
     output_dir.mkdir(exist_ok=True, parents=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     runs_file = output_dir / f"{output_prefix}_runs_{timestamp}.csv"
@@ -121,7 +124,7 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
     random.seed(RANDOM_SEED)
     print(f"Loaded {len(jobs)} queries.")
     run_records = []
-    connection = get_connection()
+    connection = get_connection(timeout=timeout)
 
     try:
         print("Connection established successfully.")
@@ -137,6 +140,13 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
                 print(f"Execute query with query id {job['query_id']} as {job_index + 1}/{len(warmup_jobs)}. query")
                 try:
                     execute_query(connection, job["query"])
+                except duckdb.InterruptException as error:
+                    label = (
+                        f'{job["representation"]} {job["query_id"]}'
+                        if include_representation
+                        else job["query_id"]
+                    )
+                    print(f"Query timed out: {label}: {error}")
                 except Exception as error:
                     label = (
                         f'{job["representation"]} {job["query_id"]}'
@@ -182,7 +192,9 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
                     with open(plans_file, "a", encoding="utf-8") as plan_file:
                         json.dump(plan_record, plan_file)
                         plan_file.write("\n")
-
+                except duckdb.InterruptException as error:
+                    record["error"] = "Query timeout"
+                    print(f"Query timed out: {label}: {error}")
                 except Exception as error:
                     record["error"] = str(error)
                     label = (

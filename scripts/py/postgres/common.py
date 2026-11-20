@@ -21,13 +21,15 @@ USERNAME = "postgres"
 PASSWORD = "postgres"
 
 
-def get_connection(autocommit=False):
+def get_connection(autocommit=False, timeout=None):
+    options = None if timeout is None else f"-c statement_timeout={timeout}"
     connection = psycopg2.connect(
         database=DB_NAME,
         user=USERNAME,
         password=PASSWORD,
         host=HOST,
         port=PORT,
+        options=options,
     )
     connection.autocommit = autocommit
     return connection
@@ -66,7 +68,6 @@ def execute_query(cursor, query):
     plan_data = result[0]
     planning_ms = plan_data.get("Planning Time")
     execution_ms = plan_data.get("Execution Time")
-    root_plan = plan_data.get("Plan", {})
 
     return {
         "planning_ms": planning_ms,
@@ -80,7 +81,7 @@ def execute_query(cursor, query):
     }
 
 
-def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measured_runs, include_representation=False):
+def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measured_runs, timeout=None, include_representation=False):
     Path(output_dir).mkdir(exist_ok=True, parents=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     runs_file = f"{output_dir}/{output_prefix}_runs_{timestamp}.csv"
@@ -90,7 +91,7 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
     random.seed(RANDOM_SEED)
     print(f"Loaded {len(jobs)} queries.")
     run_records = []
-    connection = get_connection(autocommit=True)
+    connection = get_connection(autocommit=True, timeout=timeout)
 
     try:
         print("Connection established successfully.")
@@ -106,6 +107,8 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
                     print(f"Execute query with query id {job['query_id']} as {job_index + 1}/{len(warmup_jobs)}. query")
                     try:
                         execute_query(cursor, job["query"])
+                    except psycopg2.errors.QueryCanceled:
+                        print(f"Query timed out: {job['query_id']}")
                     except Exception as error:
                         label = (
                             f'{job["representation"]} {job["query_id"]}'
@@ -152,6 +155,9 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
                             json.dump(plan_record, plan_file)
                             plan_file.write("\n")
 
+                    except psycopg2.errors.QueryCanceled:
+                        record["error"] = "Query timeout"
+                        print(f"Query timed out: {job['query_id']}")
                     except Exception as error:
                         record["error"] = str(error)
                         label = (
