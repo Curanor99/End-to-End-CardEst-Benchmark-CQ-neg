@@ -38,7 +38,20 @@ def get_connection():
     connection.execute("SET memory_limit = '16GB'")
     connection.execute("SET threads = 4")
     connection.execute("SET preserve_insertion_order = false")
-    connection.execute("SET max_temp_directory_size = '50GB'")
+    connection.execute("SET max_temp_directory_size = '100GB'")
+
+    connection.execute("SET enable_profiling = 'no_output'")
+
+    connection.execute("""
+        SET tracked_metrics = [
+            'query.*',
+            'parser.*',
+            'planner.*',
+            'optimizer.total_time',
+            'physical_planner.*',
+            'operator.*'
+        ]
+    """)
 
     return connection
 
@@ -66,24 +79,36 @@ def get_queries(file_path):
     return queries
 
 
-def execute_query(connection, query):
-    explain_query = "EXPLAIN (FORMAT JSON) " + query
-    started_at = time.perf_counter()
-    plan_result = connection.execute(explain_query).fetchone()
-    planning_ms = (time.perf_counter() - started_at) * 1000
-    plan_data = json.loads(plan_result[1])
 
-    started_at = time.perf_counter()
+def execute_query(connection, query):
     connection.execute(query).fetchall()
-    execution_ms = (time.perf_counter() - started_at) * 1000
-    server_total_ms = planning_ms + execution_ms
+    profile = json.loads(connection.get_profiling_information())
+
+    parser_ms = profile.get("parser", {}).get("total_time", 0) * 1000
+    planner_ms = profile.get("planner", {}).get("total_time", 0) * 1000
+    optimizer_ms = profile.get("optimizer", {}).get("total_time", 0) * 1000
+    physical_planner_ms = (
+            profile.get("physical_planner", {}).get("total_time", 0) * 1000
+    )
+
+    planning_ms = (
+            parser_ms
+            + planner_ms
+            + optimizer_ms
+            + physical_planner_ms
+    )
+
+    execution_ms = (
+            profile.get("query", {}).get("total_time", 0) * 1000
+    )
 
     return {
         "planning_ms": planning_ms,
         "execution_ms": execution_ms,
-        "server_total_ms": server_total_ms,
-        "plan": plan_data,
+        "server_total_ms": planning_ms + execution_ms,
+        "plan": profile,
     }
+
 
 
 def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measured_runs, include_representation=False):
@@ -95,21 +120,21 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
 
     random.seed(RANDOM_SEED)
     print(f"Loaded {len(jobs)} queries.")
-
     run_records = []
     connection = get_connection()
 
     try:
         print("Connection established successfully.")
         print("\nStarting warm-up executions...")
-
         warmup_jobs = jobs.copy()
         random.shuffle(warmup_jobs)
 
         for warmup_run in range(1, num_warm_up_runs + 1):
             print(f"Warm-up {warmup_run}/{num_warm_up_runs}")
 
-            for job in warmup_jobs:
+            for job_index in range(len(warmup_jobs)):
+                job = warmup_jobs[job_index]
+                print(f"Execute query with query id {job['query_id']} as {job_index + 1}/{len(warmup_jobs)}. query")
                 try:
                     execute_query(connection, job["query"])
                 except Exception as error:
@@ -121,13 +146,15 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
                     print(f"Warm-up failed: {label}: {error}")
 
         print("\nStarting measured executions...")
-
         for measured_run in range(1, num_measured_runs + 1):
             print(f"Measured run {measured_run}/{num_measured_runs}")
             current_jobs = jobs.copy()
             random.shuffle(current_jobs)
 
-            for job in current_jobs:
+            for job_index in range(len(current_jobs)):
+                job = current_jobs[job_index]
+                print(f"Execute query with query id {job['query_id']} as {job_index + 1}/{len(current_jobs)}. query")
+
                 record = {
                     "timestamp": datetime.now().isoformat(),
                     "query_id": job["query_id"],
