@@ -40,6 +40,8 @@ def main():
         jobs,
         OUTPUT_DIR,
         "duckdb",
+        1,
+        3,
         include_representation=True,
     )
 

@@ -12,8 +12,6 @@ import psycopg2
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
-WARMUP_RUNS = 1
-MEASURED_RUNS = 3
 RANDOM_SEED = 42
 
 HOST = "127.0.0.1"
@@ -78,13 +76,11 @@ def execute_query(cursor, query):
             if planning_ms is not None and execution_ms is not None
             else None
         ),
-        "actual_rows": root_plan.get("Actual Rows"),
-        "actual_loops": root_plan.get("Actual Loops"),
         "plan": plan_data,
     }
 
 
-def run_benchmark(jobs, output_dir, output_prefix, include_representation=False):
+def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measured_runs, include_representation=False):
     Path(output_dir).mkdir(exist_ok=True, parents=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     runs_file = f"{output_dir}/{output_prefix}_runs_{timestamp}.csv"
@@ -103,8 +99,8 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
             warmup_jobs = jobs.copy()
             random.shuffle(warmup_jobs)
 
-            for warmup_run in range(1, WARMUP_RUNS + 1):
-                print(f"Warm-up {warmup_run}/{WARMUP_RUNS}")
+            for warmup_run in range(1, num_warm_up_runs + 1):
+                print(f"Warm-up {warmup_run}/{num_warm_up_runs}")
                 for job_index in range(len(warmup_jobs)):
                     job = warmup_jobs[job_index]
                     print(f"Execute query with query id {job['query_id']} as {job_index + 1}/{len(warmup_jobs)}. query")
@@ -119,8 +115,8 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
                         print(f"Warm-up failed: {label}: {error}")
 
             print("\nStarting measured executions...")
-            for measured_run in range(1, MEASURED_RUNS + 1):
-                print(f"Measured run {measured_run}/{MEASURED_RUNS}")
+            for measured_run in range(1, num_measured_runs + 1):
+                print(f"Measured run {measured_run}/{num_measured_runs}")
                 current_jobs = jobs.copy()
                 random.shuffle(current_jobs)
 
@@ -148,8 +144,6 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
                             "planning_ms": measurements["planning_ms"],
                             "execution_ms": measurements["execution_ms"],
                             "server_total_ms": measurements["server_total_ms"],
-                            "actual_rows": measurements["actual_rows"],
-                            "actual_loops": measurements["actual_loops"],
                             "error": "",
                         })
                         plan_record["plan"] = measurements["plan"]
@@ -182,8 +176,6 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
         "planning_ms",
         "execution_ms",
         "server_total_ms",
-        "actual_rows",
-        "actual_loops",
         "error",
     ])
 

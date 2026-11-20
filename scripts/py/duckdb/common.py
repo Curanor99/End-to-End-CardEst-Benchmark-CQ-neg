@@ -14,8 +14,6 @@ import duckdb
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATABASE_FILE = REPO_ROOT / "benchmark_results" / "duckdb" / "benchmark.duckdb"
 
-WARMUP_RUNS = 1
-MEASURED_RUNS = 3
 RANDOM_SEED = 42
 
 
@@ -76,7 +74,7 @@ def execute_query(connection, query):
     plan_data = json.loads(plan_result[1])
 
     started_at = time.perf_counter()
-    query_result = connection.execute(query).fetchall()
+    connection.execute(query).fetchall()
     execution_ms = (time.perf_counter() - started_at) * 1000
     server_total_ms = planning_ms + execution_ms
 
@@ -84,13 +82,11 @@ def execute_query(connection, query):
         "planning_ms": planning_ms,
         "execution_ms": execution_ms,
         "server_total_ms": server_total_ms,
-        "actual_rows": len(query_result),
-        "actual_loops": None,
         "plan": plan_data,
     }
 
 
-def run_benchmark(jobs, output_dir, output_prefix, include_representation=False):
+def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measured_runs, include_representation=False):
     output_dir.mkdir(exist_ok=True, parents=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     runs_file = output_dir / f"{output_prefix}_runs_{timestamp}.csv"
@@ -110,8 +106,8 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
         warmup_jobs = jobs.copy()
         random.shuffle(warmup_jobs)
 
-        for warmup_run in range(1, WARMUP_RUNS + 1):
-            print(f"Warm-up {warmup_run}/{WARMUP_RUNS}")
+        for warmup_run in range(1, num_warm_up_runs + 1):
+            print(f"Warm-up {warmup_run}/{num_warm_up_runs}")
 
             for job in warmup_jobs:
                 try:
@@ -126,8 +122,8 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
 
         print("\nStarting measured executions...")
 
-        for measured_run in range(1, MEASURED_RUNS + 1):
-            print(f"Measured run {measured_run}/{MEASURED_RUNS}")
+        for measured_run in range(1, num_measured_runs + 1):
+            print(f"Measured run {measured_run}/{num_measured_runs}")
             current_jobs = jobs.copy()
             random.shuffle(current_jobs)
 
@@ -152,8 +148,6 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
                         "planning_ms": measurements["planning_ms"],
                         "execution_ms": measurements["execution_ms"],
                         "server_total_ms": measurements["server_total_ms"],
-                        "actual_rows": measurements["actual_rows"],
-                        "actual_loops": measurements["actual_loops"],
                         "error": "",
                     })
                     plan_record["plan"] = measurements["plan"]
@@ -186,8 +180,6 @@ def run_benchmark(jobs, output_dir, output_prefix, include_representation=False)
         "planning_ms",
         "execution_ms",
         "server_total_ms",
-        "actual_rows",
-        "actual_loops",
         "error",
     ])
 

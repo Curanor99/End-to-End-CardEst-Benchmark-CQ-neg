@@ -17,7 +17,7 @@ def main():
         {"query_id": query_id, "query": query}
         for query_id, query in queries.items()
     ]
-    run_benchmark(jobs, OUTPUT_DIR, "duckdb")
+    run_benchmark(jobs, OUTPUT_DIR, "duckdb", 0, 2)
 
 
 if __name__ == "__main__":

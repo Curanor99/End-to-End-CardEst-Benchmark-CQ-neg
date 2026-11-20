@@ -39,6 +39,8 @@ def main():
         jobs,
         OUTPUT_DIR,
         "postgres",
+        1,
+        3,
         include_representation=True,
     )
 
