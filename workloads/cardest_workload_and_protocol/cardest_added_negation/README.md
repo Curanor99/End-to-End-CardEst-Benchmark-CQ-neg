@@ -15,10 +15,11 @@ combining results.
 
 ## Design
 
-All selected base queries contain `posts as p`. They comprise one 2-relation,
-19 3-relation, and 20 4-relation queries. Four-relation queries are selected
-round-robin across sets of positive relation names. Added atoms use these
-post-related conditions:
+Both generators use the same selector. It requires `posts as p` and at least
+four eligible added-negation templates. It selects one 2-relation, 19
+3-relation, and 20 4-relation queries, visiting sets of positive relation
+names round-robin within each size. Added atoms use these post-related
+conditions:
 
 | Template | The negated condition rules out |
 |---|---|
@@ -41,11 +42,17 @@ holds, as in SQL.
 
 A template is eligible only when its table is absent from the positive base
 query, avoiding direct contradictions with a positive occurrence of the same
-table. The generator prefers distinct tables within a sequence; if necessary,
+table. Each sequence uses as many distinct tables as possible; if necessary,
 it can use two differently correlated atoms over the same table, such as
-comments on the post and comments by its owner. Among eligible templates it
-balances usage by position and then overall usage, with a deterministic
-tie-break. Availability constraints mean that the balance is not exact.
+comments on the post and comments by its owner. The generator deterministically
+swaps whole sequences to reduce skew in physical-table counts at each emitted
+negation depth. Counts include atoms carried over from earlier depths. When
+choices are equally good for table coverage, it favors more even template
+usage by sequence position. Eligibility limits the balance: for example,
+`users` is absent from only nine bases.
+
+Derived queries keep their IDs when the generator changes their templates.
+Do not compare results across generator versions by ID alone.
 
 The positive query is held fixed across a sequence, but the added filters can
 change result cardinality and selectivity substantially. They do not isolate
@@ -72,8 +79,9 @@ different from Boolean query evaluation under ordinary CQ set semantics.
 
 ## Reproduction
 
-From the parent folder, run `python cardest_added_negation\generate.py`.
-The generator reads `stats_CEB.sql` and reuses the CQ construction helper in
-`cardest_negation_workload\generate.py`; both must remain in their current
-relative locations. It uses only Python's standard library and overwrites the
-generated files in this folder.
+From the repository root, run
+`python workloads\cardest_workload_and_protocol\cardest_added_negation\generate.py`.
+The generator reads `workloads\stats_CEB\stats_CEB.sql`, uses the shared
+`negation_common.py` in the parent directory, and overwrites the generated
+files in this directory. It does not import or run the other generator and
+requires only Python's standard library.

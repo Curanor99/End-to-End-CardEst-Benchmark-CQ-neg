@@ -13,17 +13,24 @@ the original cardinalities are not valid for derived queries.
 
 ## Generation and omissions
 
-The generator uses the same 40 source queries as the added-negation workload.
+The generator uses the same selector as the added-negation workload, not a
+list of source line numbers. It requires `posts as p` and at least four
+eligible added-negation templates, then selects one 2-relation, 19 3-relation,
+and 20 4-relation queries round-robin across sets of positive relation names
+within each size.
 For each query it finds a longest sequence of negations for which the positive
 join graph remains connected at every level and no original join connects two
-negated aliases. Ties are broken by the original `FROM` order. Successive
-variants negate the first alias, then the first two, and so on; this is only
-one of the possible sequences.
+negated aliases. Among equally long valid sequences, it deterministically
+swaps whole sequences to reduce skew in physical-table counts at each emitted
+negation depth. Successive variants negate the first alias, then the first
+two, and so on, and each variant contributes all of its negated atoms to the
+counts. The balance is limited by the tables and joins in the base queries
+and is not forced to match the added-negation workload.
 
 Negating a bridge relation can disconnect the positive join graph and produce
 a Cartesian product. The connectivity restriction avoids generating such
 variants, but does not guarantee that all remaining queries are fast. The
-selected aliases for some IDs changed when this restriction was added: do not
+selected aliases for an ID can change when generation rules change: do not
 compare derived-query results across generator versions by ID alone.
 
 Every original filter remains attached to its relation, and every original
@@ -72,5 +79,7 @@ schemas; report that modeling choice when computing hypergraphs or width.
 
 From the repository root, run
 `python workloads\cardest_workload_and_protocol\cardest_negate_existing_atoms\generate.py`.
-It reads `workloads\stats_CEB\stats_CEB.sql` and overwrites the generated files
-in this directory. The generator uses only the Python standard library.
+The generator reads `workloads\stats_CEB\stats_CEB.sql`, uses the shared
+`negation_common.py` in the parent directory, and overwrites the generated
+files in this directory. It does not import or run the other generator and
+requires only Python's standard library.

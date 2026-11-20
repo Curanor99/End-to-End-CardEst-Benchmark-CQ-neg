@@ -2,63 +2,63 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 6.0,6,0,b p,
 6.1,6,1,p,b
 7.0,7,0,c p pl,
-7.1,7,1,p pl,c
-7.2,7,2,p,c pl
+7.1,7,1,c p,pl
+7.2,7,2,p,pl c
 8.0,8,0,c p pl,
-8.1,8,1,p pl,c
-8.2,8,2,p,c pl
+8.1,8,1,c p,pl
+8.2,8,2,p,pl c
 9.0,9,0,c p ph,
 9.1,9,1,p ph,c
 9.2,9,2,p,c ph
 10.0,10,0,c p u,
-10.1,10,1,p u,c
-10.2,10,2,u,c p
+10.1,10,1,c u,p
+10.2,10,2,u,p c
 11.0,11,0,c p u,
-11.1,11,1,p u,c
-11.2,11,2,u,c p
+11.1,11,1,c u,p
+11.2,11,2,u,p c
 17.0,17,0,p t v,
 17.1,17,1,p v,t
 17.2,17,2,p,t v
 18.0,18,0,p pl ph,
-18.1,18,1,pl ph,p
-18.2,18,2,pl,p ph
+18.1,18,1,p pl,ph
+18.2,18,2,pl,ph p
 19.0,19,0,p pl u,
-19.1,19,1,p u,pl
-19.2,19,2,p,pl u
+19.1,19,1,p pl,u
+19.2,19,2,p,u pl
 20.0,20,0,ph p u,
-20.1,20,1,p u,ph
-20.2,20,2,p,ph u
+20.1,20,1,ph p,u
+20.2,20,2,p,u ph
 21.0,21,0,v p u,
 21.1,21,1,v u,p
 21.2,21,2,v,p u
 22.0,22,0,v p u,
-22.1,22,1,p u,v
-22.2,22,2,p,v u
+22.1,22,1,v p,u
+22.2,22,2,p,u v
 25.0,25,0,c p pl v,
 25.1,25,1,c pl v,p
 25.2,25,2,c pl,p v
 26.0,26,0,c p pl u,
-26.1,26,1,p pl u,c
-26.2,26,2,p u,c pl
-26.3,26,3,p,c pl u
+26.1,26,1,c p u,pl
+26.2,26,2,c p,pl u
+26.3,26,3,p,pl u c
 27.0,27,0,c p v u,
 27.1,27,1,p v u,c
-27.2,27,2,v u,c p
-27.3,27,3,u,c p v
+27.2,27,2,p u,c v
+27.3,27,3,u,c v p
 28.0,28,0,v p b u,
-28.1,28,1,p b u,v
-28.2,28,2,p u,v b
+28.1,28,1,v p u,b
+28.2,28,2,p u,b v
 29.0,29,0,v p b u,
-29.1,29,1,p b u,v
-29.2,29,2,p u,v b
+29.1,29,1,v p u,b
+29.2,29,2,p u,b v
 30.0,30,0,v p b u,
-30.1,30,1,p b u,v
-30.2,30,2,b u,v p
-30.3,30,3,u,v p b
+30.1,30,1,v p u,b
+30.2,30,2,p u,b v
+30.3,30,3,u,b v p
 31.0,31,0,v p b u,
 31.1,31,1,p b u,v
-31.2,31,2,b u,v p
-31.3,31,3,u,v p b
+31.2,31,2,p u,v b
+31.3,31,3,u,v b p
 40.0,40,0,pl p u b,
 40.1,40,1,p u b,pl
 40.2,40,2,p u,pl b
@@ -66,9 +66,9 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 41.1,41,1,p u b,pl
 41.2,41,2,p u,pl b
 42.0,42,0,ph p v u,
-42.1,42,1,p v u,ph
-42.2,42,2,p u,ph v
-42.3,42,3,p,ph v u
+42.1,42,1,ph p u,v
+42.2,42,2,ph p,v u
+42.3,42,3,p,v u ph
 43.0,43,0,ph p u b,
 43.1,43,1,ph p b,u
 43.2,43,2,ph p,u b
@@ -76,8 +76,8 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 44.1,44,1,ph p b,u
 44.2,44,2,ph p,u b
 80.0,80,0,c p u,
-80.1,80,1,p u,c
-80.2,80,2,u,c p
+80.1,80,1,c u,p
+80.2,80,2,u,p c
 81.0,81,0,c p u,
 81.1,81,1,p u,c
 81.2,81,2,u,c p
@@ -85,8 +85,8 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 86.1,86,1,c u p,v
 86.2,86,2,c p,v u
 89.0,89,0,ph p u,
-89.1,89,1,p u,ph
-89.2,89,2,u,ph p
+89.1,89,1,ph u,p
+89.2,89,2,u,p ph
 90.0,90,0,ph p u,
 90.1,90,1,p u,ph
 90.2,90,2,u,ph p
@@ -94,8 +94,8 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 91.1,91,1,p u,ph
 91.2,91,2,u,ph p
 92.0,92,0,ph p u,
-92.1,92,1,p u,ph
-92.2,92,2,p,ph u
+92.1,92,1,ph p,u
+92.2,92,2,p,u ph
 93.0,93,0,v p u,
 93.1,93,1,p u,v
 93.2,93,2,u,v p
@@ -116,17 +116,17 @@ id,source_line,negated_count,positive_aliases,negated_aliases
 97.3,97,3,u,c p v
 117.0,117,0,ph p v u,
 117.1,117,1,p v u,ph
-117.2,117,2,p u,ph v
-117.3,117,3,p,ph v u
+117.2,117,2,p v,ph u
+117.3,117,3,p,ph u v
 118.0,118,0,ph p v u,
 118.1,118,1,p v u,ph
-118.2,118,2,p u,ph v
-118.3,118,3,p,ph v u
+118.2,118,2,p v,ph u
+118.3,118,3,p,ph u v
 119.0,119,0,ph p u b,
-119.1,119,1,p u b,ph
-119.2,119,2,u b,ph p
-119.3,119,3,u,ph p b
+119.1,119,1,ph p u,b
+119.2,119,2,p u,b ph
+119.3,119,3,u,b ph p
 120.0,120,0,ph p u b,
 120.1,120,1,p u b,ph
-120.2,120,2,u b,ph p
-120.3,120,3,u,ph p b
+120.2,120,2,p u,ph b
+120.3,120,3,u,ph b p
