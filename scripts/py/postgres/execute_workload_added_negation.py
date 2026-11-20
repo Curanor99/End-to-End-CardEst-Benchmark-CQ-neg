@@ -1,8 +1,13 @@
-from common import get_queries, run_benchmark
+from common import get_queries, run_benchmark, REPO_ROOT
 
-
-WORKLOAD_PATH = "workloads/cardest_workload_and_protocol/cardest_added_negation/not_exists.sql"
-OUTPUT_DIR = f"benchmark_results/postgres/added_negation"
+WORKLOAD_PATH = (
+        REPO_ROOT
+        / "workloads"
+        / "cardest_workload_and_protocol"
+        / "cardest_added_negation"
+        / "not_exists.sql"
+)
+OUTPUT_DIR = REPO_ROOT / "benchmark_results" / "postgres" / "added_negation"
 
 
 def main():

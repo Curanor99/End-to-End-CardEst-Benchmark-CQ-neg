@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 import random
 import statistics
 
@@ -11,8 +10,10 @@ from pathlib import Path
 import psycopg2
 
 
-WARMUP_RUNS = 2
-MEASURED_RUNS = 10
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
+WARMUP_RUNS = 1
+MEASURED_RUNS = 3
 RANDOM_SEED = 42
 
 HOST = "127.0.0.1"

@@ -14,8 +14,8 @@ import duckdb
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATABASE_FILE = REPO_ROOT / "benchmark_results" / "duckdb" / "benchmark.duckdb"
 
-WARMUP_RUNS = 2
-MEASURED_RUNS = 10
+WARMUP_RUNS = 1
+MEASURED_RUNS = 3
 RANDOM_SEED = 42
 
 
