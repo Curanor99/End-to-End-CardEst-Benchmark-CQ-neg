@@ -1,10 +1,12 @@
+from functools import lru_cache
 from itertools import combinations
 from pathlib import Path
 
 import sqlglot
 from sqlglot import exp
 
-QUERY_FILE_PATH = Path("scripts/py/util/test.sql")
+QUERY_FILE_PATH = Path("workloads/cardest_workload_and_protocol/cardest_negate_existing_atoms/not_exists.sql")
+OUTPUT_FILE = Path("workloads/cardest_workload_and_protocol/cardest_negate_existing_atoms/structural_properties.csv")
 
 
 def build_variable_mapping(tree):
@@ -216,51 +218,6 @@ def atoms_to_hypergraph(atoms):
     }
 
 
-#### Beta-acyclicity
-
-def is_nest_point(vertex, edges):
-    incident = [
-        edge
-        for edge in edges
-        if vertex in edge
-    ]
-
-    for i, first in enumerate(incident):
-        for second in incident[i + 1:]:
-            if not (first <= second or second <= first):
-                return False
-
-    return True
-
-
-def reverse_elimination_ordering(edges):
-    edges = set(edges)
-    vertices = set().union(*edges) if edges else set()
-    ordering = []
-
-    while vertices:
-        removable = sorted(
-            vertex
-            for vertex in vertices
-            if is_nest_point(vertex, edges)
-        )
-
-        if not removable:
-            return None
-
-        vertex = removable[0]
-
-        ordering.append(vertex)
-        vertices.remove(vertex)
-
-        edges = {
-            frozenset(edge - {vertex})
-            for edge in edges
-        }
-
-    return ordering
-
-
 ### Nest-set width
 def get_possible_nest_sets_of_size(vertices, size):
     possible_nest_sets = []
@@ -286,21 +243,6 @@ def get_all_possible_neos(possible_neo, vertices):
             possible_neos += get_all_possible_neos(current_possible_neo, vertices.difference(vertex_combination))
 
     return possible_neos
-
-
-def is_nest_set(possible_nest_set, edges):
-    incident = [
-        edge - possible_nest_set
-        for edge in edges
-        if edge & possible_nest_set
-    ]
-
-    for i, first in enumerate(incident):
-        for second in incident[i + 1:]:
-            if not (first <= second or second <= first):
-                return False
-
-    return True
 
 
 def is_neo(possible_neo, edges):
@@ -335,18 +277,77 @@ def get_smallest_k_neo(neos):
 
 
 def nest_set_elimination_ordering(edges):
-    edges = set(edges)
-    vertices = set().union(*edges) if edges else set()
+    edges = frozenset(
+        frozenset(edge)
+        for edge in edges
+        if edge
+    )
 
-    possible_neos = get_all_possible_neos([], vertices)
+    if not edges:
+        return 0, []
 
-    neos = []
+    vertices = set().union(*edges)
 
-    for possible_neo in possible_neos:
-        if is_neo(possible_neo, edges):
-            neos.append(possible_neo)
+    def is_nest_set(nest_set, current_edges):
+        incident = [
+            edge - nest_set
+            for edge in current_edges
+            if edge & nest_set
+        ]
 
-    return get_smallest_k_neo(neos)
+        for i, first in enumerate(incident):
+            for second in incident[i + 1:]:
+                if not (first <= second or second <= first):
+                    return False
+
+        return True
+
+    def remove_nest_set(nest_set, current_edges):
+        return frozenset(
+            frozenset(edge - nest_set)
+            for edge in current_edges
+            if edge - nest_set
+        )
+
+    # Try increasing width bounds. The first successful result
+    # is therefore an ordering with minimum width.
+    for max_width in range(1, len(vertices) + 1):
+
+        @lru_cache(maxsize=None)
+        def search(current_edges):
+            if not current_edges:
+                return ()
+
+            remaining_vertices = sorted(
+                set().union(*current_edges)
+            )
+
+            # Try smaller nest sets first.
+            for size in range(1, min(max_width, len(remaining_vertices)) + 1):
+                for combination in combinations(remaining_vertices, size):
+                    nest_set = frozenset(combination)
+
+                    if not is_nest_set(nest_set, current_edges):
+                        continue
+
+                    next_edges = remove_nest_set(
+                        nest_set,
+                        current_edges
+                    )
+
+                    result = search(next_edges)
+
+                    if result is not None:
+                        return (nest_set,) + result
+
+            return None
+
+        ordering = search(edges)
+
+        if ordering is not None:
+            return max(len(nest_set) for nest_set in ordering), list(ordering)
+
+    return None
 
 
 ### Signed-acyclicity
@@ -421,25 +422,34 @@ def is_signed_acyclic(positive_edges, negated_edges):
 
 def main():
     queries = read_queries()
+    with open(OUTPUT_FILE, "w+") as output_file:
+        output_file.write("query_id,nest-set width,beta-acyclic,signed-acyclic\n")
+        for query_id in queries:
+            tree = sqlglot.parse_one(queries[query_id], read="tsql")
 
-    for query_id in queries:
-        tree = sqlglot.parse_one(queries[query_id], read="tsql")
+            atoms = extract_hypergraph(tree)
+            positive_atoms, negated_atoms = [], []
+            for atom in atoms:
+                if atom["negated"]:
+                    negated_atoms.append(atom)
+                else:
+                    positive_atoms.append(atom)
+            edges = atoms_to_hypergraph(atoms)
+            positive_edges, negated_edges = atoms_to_hypergraph(positive_atoms), atoms_to_hypergraph(negated_atoms)
 
-        atoms = extract_hypergraph(tree)
-        positive_atoms, negated_atoms = [], []
-        for atom in atoms:
-            if atom["negated"]:
-                negated_atoms.append(atom)
-            else:
-                positive_atoms.append(atom)
-        edges = atoms_to_hypergraph(atoms)
-        positive_edges, negated_edges = atoms_to_hypergraph(positive_atoms), atoms_to_hypergraph(negated_atoms)
+            neo = nest_set_elimination_ordering(edges)
 
-        neo = nest_set_elimination_ordering(edges)
+            nest_set_width = neo[0]
+            beta_acyclic = nest_set_width == 1
+            signed_acyclic = is_signed_acyclic(positive_edges, negated_edges)
 
-        print(f"Query with query id {query_id} beta-acyclic:", neo[0] == 1)
-        print(f"Query with query id {query_id} has nest-set width:", neo[0])
-        print(f"Query with query id {query_id} signed-acyclic:", is_signed_acyclic(positive_edges, negated_edges))
+            output_file.write(f"{query_id},{nest_set_width},{beta_acyclic},{signed_acyclic}\n")
+
+            print(f"Query with query id {query_id} beta-acyclic:", beta_acyclic)
+            print(f"Query with query id {query_id} has nest-set width:", nest_set_width)
+            print(f"Query with query id {query_id} signed-acyclic:", signed_acyclic)
+
+
 
 if __name__ == '__main__':
     main()

@@ -86,7 +86,6 @@ def main():
         for count in range(len(orders[number]) + 1):
             active = orders[number][:count]
             identifier = f"{number}.{count}"
-            extra_sources = [(table, alias) for _, table, alias, _, _ in active]
             extra_conditions = []
             clauses = []
             for _, table, alias, join, filters in active:
