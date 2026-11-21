@@ -16,7 +16,7 @@ def main():
         {"query_id": query_id, "query": query}
         for query_id, query in queries.items()
     ]
-    run_benchmark(jobs, OUTPUT_DIR, "postgres", 0, 2)
+    run_benchmark(jobs, OUTPUT_DIR, "postgres", 0, 2, 1200000)
 
 
 if __name__ == "__main__":

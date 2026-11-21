@@ -1,6 +1,5 @@
 docker run --name postgres-db \
 --memory=16g \
---memory-swap=16g \
 --cpus=4 \
 -e POSTGRES_PASSWORD=postgres \
 -e POSTGRES_USER=postgres \
