@@ -24,10 +24,29 @@ def build_variable_mapping(tree):
         if x != y:
             parent[y] = x
 
-    # Collect equalities from every SELECT, including nested SELECTs.
-    for select in get_scopes(tree):
-        for left, right in extract_equalities(select):
-            union(left, right)
+    scopes = get_scopes(tree)
+    tables_by_scope = {
+        id(select): tables_in_select(select)
+        for select in scopes
+    }
+
+    # Give every referenced column a scope-qualified identity. This keeps
+    # reused aliases in nested SELECTs distinct while resolving correlations.
+    column_keys = {}
+    for select in scopes:
+        for column in select.find_all(exp.Column):
+            if enclosing_select(column) is not select:
+                continue
+            column_keys[id(column)] = resolve_column(column, select, tables_by_scope)
+            find(column_keys[id(column)])
+
+    for select in scopes:
+        for node in select.find_all(exp.EQ):
+            if enclosing_select(node) is not select:
+                continue
+            left, right = node.this, node.expression
+            if isinstance(left, exp.Column) and isinstance(right, exp.Column):
+                union(column_keys[id(left)], column_keys[id(right)])
 
     # Assign variable names.
     variables = {}
@@ -70,6 +89,10 @@ def enclosing_select(node):
     return None
 
 
+def normalized_name(name):
+    return name.casefold()
+
+
 def tables_in_select(select):
     return [
         table
@@ -82,28 +105,45 @@ def get_scopes(tree):
     return list(tree.find_all(exp.Select))
 
 
-def extract_equalities(select):
-    equalities = []
+def resolve_column(column, select, tables_by_scope):
+    qualifier = normalized_name(column.table) if column.table else None
+    current_scope = select
 
-    for node in select.find_all(exp.EQ):
-        if enclosing_select(node) is not select:
-            continue
+    while current_scope is not None:
+        tables = tables_by_scope[id(current_scope)]
+        if qualifier:
+            matches = [
+                table for table in tables
+                if normalized_name(table.alias_or_name) == qualifier
+            ]
+            if len(matches) > 1:
+                raise ValueError(
+                    f"Ambiguous table alias {column.table!r} in SELECT scope"
+                )
+            if matches:
+                table = matches[0]
+                return (
+                    id(current_scope),
+                    normalized_name(table.alias_or_name),
+                    normalized_name(column.name),
+                )
+        elif len(tables) == 1:
+            table = tables[0]
+            return (
+                id(current_scope),
+                normalized_name(table.alias_or_name),
+                normalized_name(column.name),
+            )
+        elif len(tables) > 1:
+            raise ValueError(
+                f"Cannot resolve unqualified column {column.name!r} "
+                "in a SELECT with multiple tables"
+            )
 
-        left = node.this
-        right = node.expression
+        current_scope = enclosing_select(current_scope)
 
-        if not (isinstance(left, exp.Column) and isinstance(right, exp.Column)):
-            continue
-
-        if not left.table or not right.table:
-            continue
-
-        if left.table == right.table:
-            continue
-
-        equalities.append(((left.table, left.name), (right.table, right.name)))
-
-    return equalities
+    qualifier_text = f"{column.table}." if column.table else ""
+    raise ValueError(f"Cannot resolve column {qualifier_text}{column.name}")
 
 
 def extract_negated_tables(tree):
@@ -118,9 +158,20 @@ def extract_negated_tables(tree):
         if isinstance(subquery, exp.Subquery):
             subquery = subquery.this
 
-        if isinstance(subquery, exp.Select):
-            for table in tables_in_select(subquery):
-                negated_tables.add(table)
+        if not isinstance(subquery, exp.Select):
+            continue
+
+        tables = tables_in_select(subquery)
+        nested_selects = [
+            select for select in subquery.find_all(exp.Select)
+            if select is not subquery
+        ]
+        if len(tables) != 1 or nested_selects:
+            raise ValueError(
+                "Only single-table NOT EXISTS subqueries without nested "
+                "subqueries can be represented as one negated CQ atom"
+            )
+        negated_tables.add(tables[0])
 
     return negated_tables
 
@@ -133,26 +184,20 @@ def extract_hypergraph(tree):
     variable_mapping = build_variable_mapping(tree)
 
     for select in get_scopes(tree):
-        tables = tables_in_select(select)
-
-        # Only consider equalities belonging to this SELECT.
-        equalities = extract_equalities(select)
-
-        for table in tables:
+        for table in tables_in_select(select):
             alias = table.alias_or_name
-            columns = set()
-
-            for left, right in equalities:
-                for column in (left, right):
-                    if column[0] == alias:
-                        columns.add(column)
-
-            # Resolve variables using the shared mapping.
+            table_key = (id(select), normalized_name(table.alias_or_name))
             atom_variables = {
-                variable_mapping[column]
-                for column in columns
-                if column in variable_mapping
+                variable
+                for column, variable in variable_mapping.items()
+                if column[:2] == table_key
             }
+
+            # Unreferenced schema columns are private degree-one vertices,
+            # which do not change alpha/beta acyclicity or nest-set width.
+            # Keep one placeholder when an atom has no referenced columns.
+            if not atom_variables:
+                atom_variables.add(f"private_{id(table)}")
 
             atoms.append({
                 "relation": table.name,

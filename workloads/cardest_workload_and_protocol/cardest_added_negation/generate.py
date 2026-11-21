@@ -76,7 +76,7 @@ def main():
         template_table,
         template_for=lambda template: template[0],
     )
-    sql_lines, cq_lines = [], []
+    sql_lines = []
     manifest = io.StringIO(newline="")
     writer = csv.writer(manifest, lineterminator="\n")
     writer.writerow(("id", "source_line", "negated_count", "positive_relations",
@@ -96,10 +96,7 @@ def main():
                 for term in terms:
                     extra_conditions.append((term, {a for a, _ in common.REFERENCE.findall(term)}))
             sql = query[:-1] + "".join(f" AND {clause}" for clause in clauses) + ";"
-            cq = common.build_cq(sources + extra_sources, conditions + extra_conditions,
-                                 {alias for _, _, alias, _, _ in active})
             sql_lines.append(f"{identifier}||{sql}")
-            cq_lines.append(f"{identifier}||{cq}")
             writer.writerow((
                 identifier, number, count,
                 " ".join(f"{table}:{alias}" for table, alias in sources),
@@ -108,7 +105,6 @@ def main():
             ))
 
     (ROOT / "not_exists.sql").write_text("\n".join(sql_lines) + "\n", encoding="utf-8")
-    (ROOT / "cq.txt").write_text("\n".join(cq_lines) + "\n", encoding="utf-8")
     (ROOT / "manifest.csv").write_text(manifest.getvalue(), encoding="utf-8")
     print(f"Generated {len(sql_lines)} queries from {len(bases)} base queries")
     common.print_table_coverage(orders, template_table)

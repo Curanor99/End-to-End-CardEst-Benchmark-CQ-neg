@@ -62,7 +62,7 @@ def build_sql(sources, conditions, central):
 
 
 def render(lines):
-    sql, cq = [], []
+    sql = []
     manifest = io.StringIO(newline="")
     writer = csv.writer(manifest, lineterminator="\n")
     writer.writerow(("id", "source_line", "negated_count", "positive_aliases",
@@ -75,13 +75,11 @@ def render(lines):
         ):
             identifier = f"{number}.{depth}"
             sql.append(f"{identifier}||{variant}")
-            cq.append(f"{identifier}||{common.build_cq(sources, conditions, negative)}")
             writer.writerow((identifier, number, depth,
                              " ".join(alias for _, alias in sources if alias not in negative),
                              central if depth else ""))
     return {
         "not_exists.sql": "\n".join(sql) + "\n",
-        "cq.txt": "\n".join(cq) + "\n",
         "manifest.csv": manifest.getvalue(),
     }
 

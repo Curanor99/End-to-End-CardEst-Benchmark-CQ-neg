@@ -133,7 +133,7 @@ def build_except(positive, negatives, outer, inner):
 
 
 def main():
-    results = {style: [] for style in ("not_exists", "not_in", "except", "left_join", "cq")}
+    results = {style: [] for style in ("not_exists", "not_in", "except", "left_join")}
     source_lines = common.SOURCE.read_text(encoding="utf-8").splitlines()
     omitted = []
     manifest = io.StringIO(newline="")
@@ -164,21 +164,16 @@ def main():
                 " ".join(order[:i]),
             ))
             for style in results:
-                if style == "cq":
-                    output = common.build_cq(sources, conditions, negative)
-                elif not negative:
+                if not negative:
                     output = query
                 else:
                     output = build_sql(sources, conditions, negative, style)
                 results[style].append(f"{identifier}||{output}")
     for style, lines in results.items():
-        (ROOT / f"{style}.sql" if style != "cq" else ROOT / "cq.txt").write_text(
-            "\n".join(lines) + "\n", encoding="utf-8"
-        )
+        (ROOT / f"{style}.sql").write_text("\n".join(lines) + "\n", encoding="utf-8")
     (ROOT / "manifest.csv").write_text(manifest.getvalue(), encoding="utf-8")
     (ROOT / "omitted_ids.txt").write_text("\n".join(omitted) + "\n", encoding="utf-8")
     print(f"Selected source queries: {len(bases)}")
-    print(f"Queries per file: {len(results['cq'])}")
     print(f"Omitted further sequence levels: {len(omitted)}")
     print("Omitted IDs:", ", ".join(omitted))
     common.print_table_coverage(orders, table_for)
