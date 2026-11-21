@@ -1,0 +1,4 @@
+2.0||SELECT COUNT(*) FROM a, b, c, d WHERE a.x = b.x AND b.x = c.x AND c.x = d.x AND NOT EXISTS (SELECT 1 FROM e WHERE e.x = a.x) AND NOT EXISTS (SELECT 1 FROM f WHERE f.x = b.x) AND NOT EXISTS (SELECT 1 FROM g WHERE g.x = c.x) AND NOT EXISTS (SELECT 1 FROM h WHERE h.x = d.x);
+0.0||SELECT COUNT(*) FROM a, b, c, d WHERE a.x = b.x AND a.x = d.x AND a.y = b.y AND a.y = c.y AND a.z = c.z AND a.z = d.z;
+1.0||SELECT COUNT(*) FROM badges as b, users as u WHERE b.UserId= u.Id AND u.UpVotes>=0;
+4.0||SELECT COUNT(*) FROM R AS r WHERE NOT EXISTS (SELECT 1 FROM S AS s WHERE s.x = r.x AND s.y = r.y) AND NOT EXISTS (SELECT 1 FROM T AS t WHERE t.y = r.y AND t.z = r.z) AND NOT EXISTS (SELECT 1 FROM U AS u WHERE u.x = r.x AND u.z = r.z);
