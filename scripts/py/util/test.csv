@@ -1,0 +1,11 @@
+query_id,unit,kind,nest-set width,beta-acyclic,signed-acyclic
+2.0,1,main,1,True,True
+2.0,ALL,summary,1,True,True
+0.0,1,main,2,False,True
+0.0,ALL,summary,2,False,True
+1.0,1,main,1,True,True
+1.0,ALL,summary,1,True,True
+4.0,1,main,2,False,True
+4.0,ALL,summary,2,False,True
+5.0,1,main,2,False,False
+5.0,ALL,summary,2,False,False
