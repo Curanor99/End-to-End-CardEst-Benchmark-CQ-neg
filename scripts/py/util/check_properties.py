@@ -1,3 +1,4 @@
+from collections import defaultdict
 from functools import lru_cache
 from itertools import combinations
 from pathlib import Path
@@ -5,66 +6,83 @@ from pathlib import Path
 import sqlglot
 from sqlglot import exp
 
-QUERY_FILE_PATH = Path("workloads/cardest_workload_and_protocol/cardest_negate_existing_atoms/not_exists.sql")
-OUTPUT_FILE = Path("workloads/cardest_workload_and_protocol/cardest_negate_existing_atoms/structural_properties.csv")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+SCHEMA_FILE = PROJECT_ROOT / "scripts" / "sql" / "stats.sql"
+QUERY_FILE_PATH = PROJECT_ROOT / "workloads" / "cardest_workload_and_protocol" / "cardest_negate_existing_atoms" / "not_exists.sql"
+OUTPUT_FILE = PROJECT_ROOT / "workloads" / "cardest_workload_and_protocol" / "cardest_negate_existing_atoms" / "structural_properties.csv"
 
 
-def build_variable_mapping(tree):
-    parent = {}
+### Schema Loading
 
-    def find(x):
-        parent.setdefault(x, x)
+def load_schema(path):
+    schema = {}
+    for stmt in sqlglot.parse(Path(path).read_text(), read="tsql"):
+        if isinstance(stmt, exp.Create) and isinstance(stmt.this, exp.Schema):
+            table = normalized_name(stmt.this.this.name)
+            schema[table] = {
+                normalized_name(c.name)
+                for c in stmt.this.expressions
+                if isinstance(c, exp.ColumnDef)
+            }
+    return schema
 
-        if parent[x] != x:
-            parent[x] = find(parent[x])
 
-        return parent[x]
-
-    def union(x, y):
-        x, y = find(x), find(y)
-
-        if x != y:
-            parent[y] = x
-
-    scopes = get_scopes(tree)
-    tables_by_scope = {
-        id(select): tables_in_select(select)
-        for select in scopes
-    }
-
-    # Give every referenced column a scope-qualified identity. This keeps
-    # reused aliases in nested SELECTs distinct while resolving correlations.
-    column_keys = {}
-    for select in scopes:
-        for column in select.find_all(exp.Column):
-            if enclosing_select(column) is not select:
-                continue
-            column_keys[id(column)] = resolve_column(column, select, tables_by_scope)
-            find(column_keys[id(column)])
-
-    for select in scopes:
-        for node in select.find_all(exp.EQ):
-            if enclosing_select(node) is not select:
-                continue
-            left, right = node.this, node.expression
-            if isinstance(left, exp.Column) and isinstance(right, exp.Column):
-                union(column_keys[id(left)], column_keys[id(right)])
-
-    # Assign variable names.
-    variables = {}
-
-    def get_variable(column):
-        representative = find(column)
-
-        if representative not in variables:
-            variables[representative] = f"X{len(variables) + 1}"
-
-        return variables[representative]
-
+def cte_schemas(tree):
     return {
-        column: get_variable(column)
-        for column in parent
+        normalized_name(cte.alias): {
+            normalized_name(p.alias_or_name) for p in cte.this.selects
+        }
+        for cte in tree.find_all(exp.CTE)
     }
+
+
+def is_derived_table(node):
+    return isinstance(node, exp.Subquery) and isinstance(node.parent, (exp.From, exp.Join))
+
+
+def enclosing_select(node):
+    parent = node.parent
+    while parent is not None:
+        if isinstance(parent, exp.Select):
+            return parent
+        # CTE bodies and derived tables are separate units
+        if isinstance(parent, exp.CTE) or is_derived_table(parent):
+            return None
+        parent = parent.parent
+    return None
+
+
+def tables_in_select(select):
+    """All FROM/JOIN sources of this select: base tables, CTE refs, derived tables."""
+    return [
+        n for n in select.find_all(exp.Table, exp.Subquery)
+        if (isinstance(n, exp.Table) or is_derived_table(n))
+           and enclosing_select(n) is select
+    ]
+
+
+def source_columns(src, schema):
+    if isinstance(src, exp.Subquery):
+        # for INTERSECT/UNION, .selects gives the left-most branch's projections
+        return {normalized_name(p.alias_or_name) for p in src.selects}
+    return schema.get(normalized_name(src.name), set())
+
+
+def source_label(src):
+    return f"derived:{src.alias}" if isinstance(src, exp.Subquery) else src.name
+
+
+def unit_label(root):
+    parts, node = [], root.parent
+    while node is not None:
+        if isinstance(node, exp.CTE):
+            parts.append(f"cte:{node.alias}")
+            break
+        if is_derived_table(node):
+            parts.append(f"derived:{node.alias}")
+        node = node.parent
+    return " > ".join(reversed(parts)) or "main"
 
 
 def read_queries():
@@ -78,137 +96,169 @@ def read_queries():
     return queries
 
 
+def get_units(tree):
+    return [s for s in tree.find_all(exp.Select) if enclosing_select(s) is None]
+
+
+def unit_root_of(select):
+    while (outer := enclosing_select(select)) is not None:
+        select = outer
+    return select
+
+
+def scopes_of_unit(root):
+    return [s for s in root.find_all(exp.Select) if unit_root_of(s) is root]
+
+
 ### Extract hypergraph infos
 
-def enclosing_select(node):
-    parent = node.parent
+def resolve_column(column, select, tables_by_scope, schema):
+    qualifier = normalized_name(column.table) if column.table else None
+    name = normalized_name(column.name)
+    current = select
 
-    while parent is not None:
-        if isinstance(parent, exp.Select):
-            return parent
-        parent = parent.parent
+    while current is not None:
+        tables = tables_by_scope[id(current)]
+        if qualifier:
+            matches = [t for t in tables
+                       if normalized_name(t.alias_or_name) == qualifier]
+        else:
+            matches = [t for t in tables if name in source_columns(t, schema)]
+        if len(matches) > 1:
+            raise ValueError(f"Ambiguous column {column.sql()}")
+        if matches:
+            return (id(current), normalized_name(matches[0].alias_or_name), name)
+        current = enclosing_select(current)
 
-    return None
+    scope_info = [
+        f"{t.alias_or_name}({source_label(t)}, "
+        f"{'in schema' if source_columns(t, schema) else 'NOT in schema'})"
+        for t in tables_by_scope[id(select)]
+    ]
+    raise ValueError(
+        f"Cannot resolve {column.sql()}; tables in innermost scope: {scope_info}"
+    )
+
+
+def build_variable_mapping(scopes, schema):
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        if parent[x] != x:
+            parent[x] = find(parent[x])
+        return parent[x]
+
+    def union(x, y):
+        x, y = find(x), find(y)
+        if x != y:
+            parent[y] = x
+
+    tables_by_scope = {id(s): tables_in_select(s) for s in scopes}
+
+    column_keys, records = {}, []
+    for select in scopes:
+        for column in select.find_all(exp.Column):
+            if enclosing_select(column) is not select:
+                continue
+            key = resolve_column(column, select, tables_by_scope, schema)
+            column_keys[id(column)] = key
+            records.append((select, key))
+            find(key)
+
+    for select in scopes:
+        for node in select.find_all(exp.EQ):
+            if enclosing_select(node) is not select:
+                continue
+            l, r = node.this, node.expression
+            if isinstance(l, exp.Column) and isinstance(r, exp.Column):
+                union(column_keys[id(l)], column_keys[id(r)])
+
+    variables = {}
+    mapping = {}
+    for key in parent:
+        rep = find(key)
+        variables.setdefault(rep, f"X{len(variables) + 1}")
+        mapping[key] = variables[rep]
+    return mapping, records
 
 
 def normalized_name(name):
     return name.casefold()
 
 
-def tables_in_select(select):
-    return [
-        table
-        for table in select.find_all(exp.Table)
-        if enclosing_select(table) is select
-    ]
-
-
 def get_scopes(tree):
     return list(tree.find_all(exp.Select))
 
 
-def resolve_column(column, select, tables_by_scope):
-    qualifier = normalized_name(column.table) if column.table else None
-    current_scope = select
-
-    while current_scope is not None:
-        tables = tables_by_scope[id(current_scope)]
-        if qualifier:
-            matches = [
-                table for table in tables
-                if normalized_name(table.alias_or_name) == qualifier
-            ]
-            if len(matches) > 1:
-                raise ValueError(
-                    f"Ambiguous table alias {column.table!r} in SELECT scope"
-                )
-            if matches:
-                table = matches[0]
-                return (
-                    id(current_scope),
-                    normalized_name(table.alias_or_name),
-                    normalized_name(column.name),
-                )
-        elif len(tables) == 1:
-            table = tables[0]
-            return (
-                id(current_scope),
-                normalized_name(table.alias_or_name),
-                normalized_name(column.name),
-            )
-        elif len(tables) > 1:
-            raise ValueError(
-                f"Cannot resolve unqualified column {column.name!r} "
-                "in a SELECT with multiple tables"
-            )
-
-        current_scope = enclosing_select(current_scope)
-
-    qualifier_text = f"{column.table}." if column.table else ""
-    raise ValueError(f"Cannot resolve column {qualifier_text}{column.name}")
+def negated_subqueries(scopes):
+    result = []
+    for select in scopes:
+        for ex in select.find_all(exp.Exists):
+            if enclosing_select(ex) is not select or not isinstance(ex.parent, exp.Not):
+                continue
+            sub = ex.this.this if isinstance(ex.this, exp.Subquery) else ex.this
+            if not isinstance(sub, exp.Select):
+                raise ValueError("NOT EXISTS over a set operation is not supported")
+            result.append(sub)
+    return result
 
 
-def extract_negated_tables(tree):
-    negated_tables = set()
+def extract_hypergraph(root, schema):
+    scopes = scopes_of_unit(root)
+    neg_roots = negated_subqueries(scopes)
+    neg_ids = {id(s) for s in neg_roots}
 
-    for exists in tree.find_all(exp.Exists):
-        if not isinstance(exists.parent, exp.Not):
-            continue
+    def group_of(select):                 # id of enclosing NOT EXISTS, or None
+        while select is not None:
+            if id(select) in neg_ids:
+                return id(select)
+            select = enclosing_select(select)
+        return None
 
-        subquery = exists.this
+    group = {id(s): group_of(s) for s in scopes}
+    for r in neg_roots:
+        if group_of(enclosing_select(r)) is not None:
+            raise ValueError("Nested NOT EXISTS is not supported")
 
-        if isinstance(subquery, exp.Subquery):
-            subquery = subquery.this
+    mapping, records = build_variable_mapping(scopes, schema)
 
-        if not isinstance(subquery, exp.Select):
-            continue
+    # free variables of a negated block = variables of columns it references
+    # that were resolved outside of it (equality- or inequality-correlated)
+    free = defaultdict(set)
+    for scope, key in records:
+        g = group[id(scope)]
+        if g is not None and group[key[0]] != g:
+            free[g].add(mapping[key])
 
-        tables = tables_in_select(subquery)
-        nested_selects = [
-            select for select in subquery.find_all(exp.Select)
-            if select is not subquery
-        ]
-        if len(tables) != 1 or nested_selects:
-            raise ValueError(
-                "Only single-table NOT EXISTS subqueries without nested "
-                "subqueries can be represented as one negated CQ atom"
-            )
-        negated_tables.add(tables[0])
-
-    return negated_tables
-
-
-def extract_hypergraph(tree):
     atoms = []
-    negated_tables = extract_negated_tables(tree)
-
-    # Build equivalence classes only once.
-    variable_mapping = build_variable_mapping(tree)
-
-    for select in get_scopes(tree):
+    for select in scopes:
+        if group[id(select)] is not None:
+            continue
         for table in tables_in_select(select):
-            alias = table.alias_or_name
             table_key = (id(select), normalized_name(table.alias_or_name))
-            atom_variables = {
-                variable
-                for column, variable in variable_mapping.items()
-                if column[:2] == table_key
-            }
+            variables = {v for k, v in mapping.items() if k[:2] == table_key}
+            if not variables:
+                variables = {f"private_{id(table)}"}
+            atoms.append({"relation": source_label(table), "alias": table.alias_or_name,
+                          "negated": False, "variables": variables})
 
-            # Unreferenced schema columns are private degree-one vertices,
-            # which do not change alpha/beta acyclicity or nest-set width.
-            # Keep one placeholder when an atom has no referenced columns.
-            if not atom_variables:
-                atom_variables.add(f"private_{id(table)}")
-
-            atoms.append({
-                "relation": table.name,
-                "alias": alias,
-                "negated": table in negated_tables,
-                "variables": atom_variables
-            })
-
+    for r in neg_roots:
+        rels = [source_label(t) for s in scopes if group[id(s)] == id(r)
+                for t in tables_in_select(s)]
+        atoms.append({"relation": "NOT EXISTS(" + "+".join(rels) + ")",
+                      "alias": f"neg_{id(r)}", "negated": True,
+                      "variables": set(free[id(r)]) or {f"private_{id(r)}"}})
     return atoms
+
+
+def analyze_unit(root, schema):
+    atoms = extract_hypergraph(root, schema)
+    pos = atoms_to_hypergraph([a for a in atoms if not a["negated"]])
+    neg = atoms_to_hypergraph([a for a in atoms if a["negated"]])
+    width, _ = nest_set_elimination_ordering(atoms_to_hypergraph(atoms))
+    return {"width": width, "beta": width <= 1,
+            "signed": is_signed_acyclic(pos, neg)}
 
 
 def atoms_to_hypergraph(atoms):
@@ -243,37 +293,6 @@ def get_all_possible_neos(possible_neo, vertices):
             possible_neos += get_all_possible_neos(current_possible_neo, vertices.difference(vertex_combination))
 
     return possible_neos
-
-
-def is_neo(possible_neo, edges):
-    current_edges = edges.copy()
-
-    for possible_nest_set in possible_neo:
-        if not is_nest_set(possible_nest_set, current_edges):
-            return False
-
-        current_edges = {
-            frozenset(edge - possible_nest_set)
-            for edge in current_edges
-            if edge - possible_nest_set
-        }
-
-    return not current_edges
-
-
-def get_smallest_k_neo(neos):
-    if not neos:
-        return None
-
-    k_neos = [(len(max(neo, key=len)), neo) for neo in neos]
-
-    smallest_k_neo = None
-
-    for k, neo in k_neos:
-        if smallest_k_neo is None or k < smallest_k_neo[0]:
-            smallest_k_neo = (k, neo)
-
-    return smallest_k_neo
 
 
 def nest_set_elimination_ordering(edges):
@@ -421,33 +440,44 @@ def is_signed_acyclic(positive_edges, negated_edges):
 
 
 def main():
+    base_schema = load_schema(SCHEMA_FILE)
     queries = read_queries()
-    with open(OUTPUT_FILE, "w+") as output_file:
-        output_file.write("query_id,nest-set width,beta-acyclic,signed-acyclic\n")
-        for query_id in queries:
-            tree = sqlglot.parse_one(queries[query_id], read="tsql")
+    totals = defaultdict(int)
 
-            atoms = extract_hypergraph(tree)
-            positive_atoms, negated_atoms = [], []
-            for atom in atoms:
-                if atom["negated"]:
-                    negated_atoms.append(atom)
-                else:
-                    positive_atoms.append(atom)
-            edges = atoms_to_hypergraph(atoms)
-            positive_edges, negated_edges = atoms_to_hypergraph(positive_atoms), atoms_to_hypergraph(negated_atoms)
+    with open(OUTPUT_FILE, "w") as out:
+        out.write("query_id,unit,kind,nest-set width,beta-acyclic,signed-acyclic\n")
+        for query_id, sql in queries.items():
+            results = []
+            try:
+                for tree in sqlglot.parse(sql, read="tsql"):
+                    if tree is None:
+                        continue
+                    schema = {**base_schema, **cte_schemas(tree)}
+                    for root in get_units(tree):
+                        res = analyze_unit(root, schema)
+                        res["kind"] = unit_label(root)
+                        results.append(res)
+                        out.write(f"{query_id},{len(results)},{res['kind']},"
+                                  f"{res['width']},{res['beta']},{res['signed']}\n")
+            except ValueError as e:
+                print(f"{query_id}: FAILED: {e}")
+                out.write(f"{query_id},ALL,error,,,\n")
+                totals["failed"] += 1
+                continue
 
-            neo = nest_set_elimination_ordering(edges)
+            width = max(r["width"] for r in results)
+            beta = all(r["beta"] for r in results)
+            signed = all(r["signed"] for r in results)
+            out.write(f"{query_id},ALL,summary,{width},{beta},{signed}\n")
 
-            nest_set_width = neo[0]
-            beta_acyclic = nest_set_width == 1
-            signed_acyclic = is_signed_acyclic(positive_edges, negated_edges)
+            totals["queries"] += 1
+            totals["units"] += len(results)
+            totals["beta_acyclic"] += beta
+            totals["signed_acyclic"] += signed
+            print(f"{query_id}: {len(results)} units, width={width}, "
+                  f"beta={beta}, signed={signed}")
 
-            output_file.write(f"{query_id},{nest_set_width},{beta_acyclic},{signed_acyclic}\n")
-
-            print(f"Query with query id {query_id} beta-acyclic:", beta_acyclic)
-            print(f"Query with query id {query_id} has nest-set width:", nest_set_width)
-            print(f"Query with query id {query_id} signed-acyclic:", signed_acyclic)
+    print(dict(totals))
 
 
 
