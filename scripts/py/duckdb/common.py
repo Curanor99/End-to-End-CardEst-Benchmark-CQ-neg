@@ -196,7 +196,7 @@ def run_benchmark(jobs, output_dir, output_prefix, num_warm_up_runs, num_measure
                     record["error"] = "Query timeout"
                     print(f"Query timed out: {label}: {error}")
                 except Exception as error:
-                    record["error"] = str(error)
+                    record["error"] = str(error).replace("\n", "")
                     label = (
                         f'{job["representation"]} {job["query_id"]}'
                         if include_representation
