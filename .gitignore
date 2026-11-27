@@ -45,4 +45,4 @@ lib*.pc
 .DS_Store
 
 # Benchmark results
-benchmark_results
+#benchmark_results
